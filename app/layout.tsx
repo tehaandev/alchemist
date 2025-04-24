@@ -1,4 +1,7 @@
 import "./globals.css";
+import ReactQueryProvider from "@/components/providers/ReactQueryProvider";
+import ThemeLayout from "@/components/providers/ThemeProvider";
+import { Toaster } from "@/components/ui/sonner";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import type React from "react";
@@ -18,9 +21,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} flex items-center justify-center`}>
-        {children}
-      </body>
+      <ThemeLayout>
+        <ReactQueryProvider>
+          <body
+            className={`${inter.className} flex items-center justify-center`}>
+            <Toaster position="top-center" />
+            {children}
+          </body>
+        </ReactQueryProvider>
+      </ThemeLayout>
     </html>
   );
 }

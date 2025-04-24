@@ -1,5 +1,6 @@
 // user model mongoose
 import { User } from "@/interfaces/documents";
+import bcrypt from "bcryptjs";
 import mongoose, { Schema } from "mongoose";
 
 const userSchema = new Schema<User>(
@@ -31,6 +32,14 @@ const userSchema = new Schema<User>(
     versionKey: false,
   },
 );
+
+// Hash password before saving
+userSchema.pre("save", function (next) {
+  if (!this.isModified("password")) return next();
+  this.password = bcrypt.hashSync(this.password, 10);
+  next();
+});
+
 const UserModel =
   mongoose.models.User || mongoose.model<User>("User", userSchema);
 export default UserModel;
