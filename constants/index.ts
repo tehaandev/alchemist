@@ -7,3 +7,5 @@ export const COOKIE_OPTIONS = {
   path: "/",
   maxAge: 60 * 60 * 24 * 30, // 30 days
 };
+
+export const MAX_FILE_SIZE = 20 * 1024 * 1024; // 5MB
