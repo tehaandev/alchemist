@@ -1,0 +1,28 @@
+{
+  "plugins": [
+    "@trivago/prettier-plugin-sort-imports",
+    "prettier-plugin-tailwindcss"
+  ],
+  "bracketSameLine": true,
+  "importOrder": [
+    "builtin",
+    "external",
+    "internal",
+    "parent",
+    "sibling",
+    "index",
+    "unknown"
+  ],
+  "importOrderSeperation": true,
+  "importOrderSortSpecifier": true,
+  "importOrderGroups": {
+    "builtin": "^react$",
+    "external": "^@?\\w",
+    "internal": "^(components|utils|services|hooks|context|constants|styles|assets)/",
+    "parent": "^\\.\\.",
+    "sibling": "^\\.",
+    "index": "^index$",
+    "unknown": "^"
+  }
+}
+

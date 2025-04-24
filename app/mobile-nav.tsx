@@ -21,33 +21,29 @@ export function MobileNav() {
         <div className="flex flex-col gap-6 pt-6">
           <Link
             href="#features"
-            className="text-lg font-medium hover:text-primary"
-            onClick={() => setOpen(false)}
-          >
+            className="hover:text-primary text-lg font-medium"
+            onClick={() => setOpen(false)}>
             Features
           </Link>
           <Link
             href="#how-it-works"
-            className="text-lg font-medium hover:text-primary"
-            onClick={() => setOpen(false)}
-          >
+            className="hover:text-primary text-lg font-medium"
+            onClick={() => setOpen(false)}>
             How It Works
           </Link>
           <Link
             href="#use-cases"
-            className="text-lg font-medium hover:text-primary"
-            onClick={() => setOpen(false)}
-          >
+            className="hover:text-primary text-lg font-medium"
+            onClick={() => setOpen(false)}>
             Use Cases
           </Link>
           <Link
             href="#pricing"
-            className="text-lg font-medium hover:text-primary"
-            onClick={() => setOpen(false)}
-          >
+            className="hover:text-primary text-lg font-medium"
+            onClick={() => setOpen(false)}>
             Pricing
           </Link>
-          <div className="flex flex-col gap-2 mt-4">
+          <div className="mt-4 flex flex-col gap-2">
             <Button variant="outline" onClick={() => setOpen(false)}>
               Log in
             </Button>
@@ -58,4 +54,3 @@ export function MobileNav() {
     </Sheet>
   );
 }
-
