@@ -1,3 +1,4 @@
+import DarkModeToggle from "@/components/DarkModeToggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -72,6 +73,7 @@ export default function LandingPage() {
               </Button>
             </Link>
             <Button className="hidden md:flex">Start Free Trial</Button>
+            <DarkModeToggle />
             <MobileNav />
           </div>
         </div>
