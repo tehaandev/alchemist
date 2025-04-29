@@ -33,11 +33,6 @@ export const useChat = () => {
         ...(prev || []),
         {
           id: crypto.randomUUID(),
-          message: query,
-          role: "user",
-        },
-        {
-          id: crypto.randomUUID(),
           message: answer,
           role: "llm",
         },

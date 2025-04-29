@@ -1,6 +1,8 @@
 import { MAX_FILE_SIZE } from "@/constants";
 import { getUserFromCookieAction } from "@/features/auth/auth.action";
+import { prisma } from "@/lib/prisma";
 import s3Client from "@/lib/s3";
+import { DocumentStatus } from "@/prisma/generated";
 import { ListObjectsV2Command, PutObjectCommand } from "@aws-sdk/client-s3";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -10,7 +12,7 @@ export async function POST(request: NextRequest) {
   if (!file) {
     return NextResponse.json({ message: "No file found" }, { status: 400 });
   }
-  const tokenUser = await getUserFromCookieAction();
+  // const tokenUser = await getUserFromCookieAction();
   const bucketName = process.env.SUPABASE_BUCKET_NAME;
   const fileName = file.name;
   const fileType = file.type;
@@ -21,15 +23,24 @@ export async function POST(request: NextRequest) {
       { status: 400 },
     );
   }
+  const arrayBuffer = await file.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
   const params = {
     Bucket: bucketName,
-    Key: `${tokenUser?.email}/${fileName}`,
-    Body: file,
+    Key: `${fileName}`,
+    Body: buffer,
     ContentType: fileType,
   };
 
   try {
     await s3Client.send(new PutObjectCommand(params));
+    await prisma.document.create({
+      data: {
+        key: `${fileName}`,
+        filename: fileName,
+        status: DocumentStatus.UPLOADED,
+      },
+    });
     return NextResponse.json(
       {
         message: "File uploaded successfully",

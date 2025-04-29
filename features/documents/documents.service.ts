@@ -1,3 +1,5 @@
+"use server";
+
 import pdfParse from "pdf-parse";
 
 export async function getTextFromPdf(pdfBuffer: Buffer): Promise<string> {
