@@ -18,11 +18,15 @@ function chunkText(text: string) {
   return splitter.createDocuments([text]);
 }
 
-export async function generateEmbeddingsForFile(
-  key: string,
-  docId: string,
-  setProgress: React.Dispatch<React.SetStateAction<number>>,
-) {
+export async function generateEmbeddingsForFile({
+  key,
+  docId,
+  setProgress,
+}: {
+  key: string;
+  docId: string;
+  setProgress: React.Dispatch<React.SetStateAction<number>>;
+}) {
   const PINECONE_INDEX_NAME = process.env.PINECONE_INDEX_NAME;
   setProgress(0);
   try {
