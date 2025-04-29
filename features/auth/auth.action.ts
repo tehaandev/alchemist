@@ -24,11 +24,6 @@ export async function registerAction({
     if (existingUser) {
       throw new Error("User already exists");
     }
-    // const newUser = await UserModel.create({
-    //   email,
-    //   password,
-    //   name,
-    // });
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await prisma.user.create({
       data: {

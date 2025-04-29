@@ -13,8 +13,8 @@ export default function ChatPage() {
   const [input, setInput] = useState<string>();
 
   return (
-    <div className="flex h-screen max-h-screen flex-col p-4 md:p-8 lg:w-2/3">
-      <h1 className="mb-4 text-2xl font-bold">RAG Chat Assistant</h1>
+    <div className="mx-auto flex h-[60vh] max-h-screen flex-col p-4 md:p-8 lg:w-2/3">
+      {/* <h1 className="mb-4 text-2xl font-bold">RAG Chat Assistant</h1> */}
 
       <Card className="mb-4 flex w-full flex-1 flex-col overflow-hidden border-2">
         <div className="flex-1 overflow-scroll p-4">

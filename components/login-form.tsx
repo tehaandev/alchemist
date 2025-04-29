@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useLoginUser } from "@/features/auth/auth.query";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export function LoginForm({
@@ -20,7 +21,9 @@ export function LoginForm({
 }: React.ComponentProps<"div">) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { replace } = useRouter();
   const loginMutation = useLoginUser();
+  // const registerMutation = useRegisterUser();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -28,6 +31,7 @@ export function LoginForm({
         email,
         password,
       });
+      replace("/chat");
     } catch {} // Intentional no-op (error handling is done in the mutation)
   };
 
