@@ -33,7 +33,7 @@ export async function generateEmbeddingsForFile(
     if (!text) {
       throw new Error("No text found in document");
     }
-    setProgress(20);
+    setProgress(25);
     const chunks = await chunkText(text);
     setProgress(50);
     // Generate embeddings for each chunk
@@ -50,7 +50,7 @@ export async function generateEmbeddingsForFile(
         };
       }),
     );
-    setProgress(80);
+    setProgress(75);
     // Store embeddings in Pinecone
     await pineconeIndex.upsert(embeddings);
     setProgress(100);

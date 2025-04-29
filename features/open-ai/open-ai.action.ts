@@ -46,6 +46,7 @@ export async function expandQueryAction(
 
 export async function generateAnswerAction(
   query: string,
+  retrieved_chunks: string,
   model: OpenAIModel = OpenAIModel.GPT_4O_MINI,
 ) {
   try {
@@ -61,7 +62,7 @@ export async function generateAnswerAction(
           ${query}
 
           Context:
-          {{retrieved_chunks}}
+          ${retrieved_chunks}
 
           Instructions:
           - Focus on clarity and relevance to agricultural ML and edge computing.
