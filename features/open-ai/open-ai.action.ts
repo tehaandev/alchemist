@@ -1,19 +1,15 @@
 "use server";
 
 import { OpenAIModel } from "./open-ai.type";
-import OpenAI from "openai";
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+import openai from "@/lib/openai";
 
 export async function generateEmbeddingAction(text: string) {
   try {
-    const response = await openai.chat.completions.create({
+    const response = await openai.embeddings.create({
       model: OpenAIModel.EMBEDDING,
-      messages: [{ role: "user", content: text }],
+      input: text,
     });
-    return response.choices[0].message.content;
+    return response.data[0].embedding;
   } catch (error) {
     console.error("Error generating embedding:", error);
     throw new Error("Failed to generate embedding");
@@ -30,10 +26,16 @@ export async function expandQueryAction(
       messages: [
         {
           role: "system",
-          content: `Expand the following query into a more detailed and specific one`,
+          content: `
+            You are a research assistant specializing in precision agriculture, edge computing, and machine learning. Given the following user query, generate 3 to 5 expanded and more specific search queries that could help retrieve relevant academic papers or datasets. The expansions should include alternative terminology, broader and narrower scopes, and closely related concepts. Prioritize relevance to edge-based ML systems for smallholder farming. Keep each expanded query concise and academic in tone.
+
+            User Query: "${query}"
+          `,
         },
-        { role: "user", content: query },
       ],
+      temperature: 0.7,
+      top_p: 1,
+      max_tokens: 512,
     });
     return response.choices[0].message.content;
   } catch (error) {
@@ -52,9 +54,22 @@ export async function generateAnswerAction(
       messages: [
         {
           role: "system",
-          content: `Generate a detailed answer to the following query`,
+          content: `
+          You are an expert research assistant in AI for agriculture. Using the following retrieved context and user question, generate a clear, concise, and well-structured answer that directly addresses the question. Include relevant technical details, cite key concepts or studies if possible, and connect findings to edge-based machine learning in smallholder farming where appropriate. If the answer includes limitations, challenges, or future directions, summarize them briefly at the end. If the information is inconclusive, state that confidently.
+
+          User Question:
+          ${query}
+
+          Context:
+          {{retrieved_chunks}}
+
+          Instructions:
+          - Focus on clarity and relevance to agricultural ML and edge computing.
+          - Avoid speculation not supported by the context.
+          - Do not include the original user query or raw context in the final answer.
+          - Structure in 1-3 short paragraphs unless otherwise necessary.
+          `,
         },
-        { role: "user", content: query },
       ],
     });
     return response.choices[0].message.content;
