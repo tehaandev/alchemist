@@ -49,7 +49,7 @@ export default function DocumentsPage() {
 
   if (isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center">
+      <div className="flex h-full items-center justify-center">
         <Loader2 className="text-primary h-8 w-8 animate-spin" />
         <span className="ml-2">Loading documents...</span>
       </div>
@@ -58,7 +58,7 @@ export default function DocumentsPage() {
 
   if (error) {
     return (
-      <div className="flex h-screen items-center justify-center">
+      <div className="flex h-full items-center justify-center">
         <p className="text-destructive">
           Error loading documents: {error.message}
         </p>
@@ -67,7 +67,7 @@ export default function DocumentsPage() {
   }
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto h-full py-8">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-3xl font-bold">Documents</h1>
 

@@ -165,7 +165,9 @@ export default function AuthLayout({
           </div>
         </div>
       </header>
-      <main className="container mx-auto flex-1 pt-6">{children}</main>
+      <main className="container mx-auto h-[calc(100vh-4rem)] flex-1 pt-6">
+        {children}
+      </main>
     </section>
   );
 }
