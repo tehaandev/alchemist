@@ -129,23 +129,16 @@ export default function DocumentsPage() {
           {documents?.map((doc) => (
             <Card key={doc.key} className="flex flex-col">
               <CardHeader>
-                <CardTitle className="truncate">{doc.key}</CardTitle>
+                <CardTitle className="">{doc.key}</CardTitle>
               </CardHeader>
               <CardContent className="flex-1">
                 <p className="text-muted-foreground text-sm">
                   {"No description available"}
                 </p>
-                {doc.status === DocumentStatus.EMBEDDED && (
-                  <div className="mt-2">
-                    <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-100">
-                      Embeddings Generated
-                    </span>
-                  </div>
-                )}
               </CardContent>
               <CardFooter className="flex justify-end gap-2 border-t pt-4">
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
                   onClick={() =>
                     generateEmbeddingsMutation.mutate({
@@ -153,12 +146,19 @@ export default function DocumentsPage() {
                       docId: doc.id.toString(),
                     })
                   }
-                  disabled={generateEmbeddingsMutation.isPending}>
+                  disabled={
+                    generateEmbeddingsMutation.isPending ||
+                    doc.status === DocumentStatus.EMBEDDED
+                  }>
                   {generateEmbeddingsMutation.isPending ? (
                     <>
                       <Loader2 className="mr-2 h-3 w-3 animate-spin" />
                       Generating...
                     </>
+                  ) : doc.status === DocumentStatus.EMBEDDED ? (
+                    <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-100">
+                      Embeddings Generated
+                    </span>
                   ) : (
                     "Generate Embeddings"
                   )}

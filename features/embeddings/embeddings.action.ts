@@ -3,6 +3,8 @@
 import { generateEmbeddingAction } from "../open-ai/open-ai.action";
 import { getDocumentText } from "../s3/s3.action";
 import pineconeIndex from "@/lib/pinecone";
+import { prisma } from "@/lib/prisma";
+import { DocumentStatus } from "@/prisma/generated";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 
 // Constants for chunking
@@ -51,6 +53,12 @@ export async function generateEmbeddingsForFile({
     );
     // Store embeddings in Pinecone
     await pineconeIndex.upsert(embeddings);
+    await prisma.document.update({
+      where: { id: parseInt(docId) },
+      data: {
+        status: DocumentStatus.EMBEDDED,
+      },
+    });
   } catch (error) {
     console.error("Error generating embeddings:", error);
     throw new Error("Failed to generate embeddings");
