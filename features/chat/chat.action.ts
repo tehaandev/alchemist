@@ -1,3 +1,5 @@
+"use server";
+
 import {
   expandQueryAction,
   generateAnswerAction,
@@ -5,7 +7,7 @@ import {
 } from "../open-ai/open-ai.action";
 import pineconeIndex from "@/lib/pinecone";
 
-export async function getAnswerFromQuery(query: string) {
+export async function getAnswerFromQuery({ query }: { query: string }) {
   try {
     // expand query
     const expandedQuery = await expandQueryAction(query);

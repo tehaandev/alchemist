@@ -4,26 +4,20 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
+import { useChat } from "@/features/chat/chat.query";
 import { cn } from "@/lib/utils";
-import { useChat } from "@ai-sdk/react";
 import { Bot, Send, User } from "lucide-react";
+import { useState } from "react";
 
 export default function ChatPage() {
-  const { messages, input, handleInputChange, handleSubmit, isLoading } =
-    useChat({
-      api: "/api/chat",
-      initialMessages: [],
-      onResponse: (message) => {
-        // Handle the response message here if needed
-        console.log("Received message:", message);
-      },
-    });
+  const { handleSubmit, messages, isPending } = useChat();
+  const [input, setInput] = useState<string>();
 
   return (
-    <div className="flex h-screen max-h-screen flex-col p-4 md:p-8">
+    <div className="flex h-screen max-h-screen flex-col p-4 md:p-8 lg:min-w-2/3">
       <h1 className="mb-4 text-2xl font-bold">RAG Chat Assistant</h1>
 
-      <Card className="mb-4 flex flex-1 flex-col overflow-hidden border-2">
+      <Card className="mb-4 flex w-full flex-1 flex-col overflow-hidden border-2">
         <ScrollArea className="flex-1 p-4">
           <div className="flex flex-col space-y-4">
             {messages.length === 0 ? (
@@ -41,7 +35,7 @@ export default function ChatPage() {
                 <div
                   key={message.id}
                   className={cn(
-                    "flex items-start gap-3 rounded-lg p-4",
+                    "flex w-full items-start gap-3 rounded-lg p-4",
                     message.role === "user" ? "bg-muted/50" : "bg-primary/5",
                   )}>
                   <div className="bg-background flex h-8 w-8 shrink-0 items-center justify-center rounded-md border shadow select-none">
@@ -53,11 +47,11 @@ export default function ChatPage() {
                   </div>
                   <div className="flex-1 space-y-2">
                     <div className="prose prose-sm dark:prose-invert">
-                      {message.content}
+                      {message.message}
                     </div>
 
                     {/* Display sources if available */}
-                    {/* {message.role === "assistant" && message.sources && (
+                    {/* {message.role === "llm" && message.sources && (
                       <div className="mt-3 flex flex-wrap gap-2">
                         {message.sources.map((source, index) => (
                           <div
@@ -77,18 +71,26 @@ export default function ChatPage() {
         </ScrollArea>
       </Card>
 
-      <form onSubmit={handleSubmit} className="flex items-start gap-3">
+      <div className="flex items-start gap-3">
         <Textarea
           placeholder="Ask a question..."
           value={input}
-          onChange={handleInputChange}
+          onChange={(e) => setInput(e.target.value)}
           className="min-h-24 flex-1 resize-none"
         />
-        <Button type="submit" size="icon" disabled={isLoading || !input.trim()}>
+        <Button
+          type="button"
+          size="icon"
+          onClick={() => {
+            if (!input?.trim()) return;
+            handleSubmit(input);
+            setInput("");
+          }}
+          disabled={isPending || !input?.trim()}>
           <Send className="h-4 w-4" />
           <span className="sr-only">Send message</span>
         </Button>
-      </form>
+      </div>
     </div>
   );
 }
