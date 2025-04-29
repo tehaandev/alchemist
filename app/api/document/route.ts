@@ -1,23 +1,17 @@
 import { MAX_FILE_SIZE } from "@/constants";
 import { getUserFromCookieAction } from "@/features/auth/auth.action";
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import s3Client from "@/lib/s3";
+import { ListObjectsV2Command, PutObjectCommand } from "@aws-sdk/client-s3";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(request: NextRequest) {
+export async function POST(request: NextRequest) {
   const formData = await request.formData();
   const file = formData.get("file") as File | null;
   if (!file) {
     return NextResponse.json({ message: "No file found" }, { status: 400 });
   }
-  const s3Client = new S3Client({
-    region: process.env.AWS_REGION,
-    credentials: {
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID || "",
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || "",
-    },
-  });
   const tokenUser = await getUserFromCookieAction();
-  const bucketName = process.env.S3_BUCKET_NAME;
+  const bucketName = process.env.SUPABASE_BUCKET_NAME;
   const fileName = file.name;
   const fileType = file.type;
   const fileSize = file.size;
@@ -46,6 +40,33 @@ export async function GET(request: NextRequest) {
     console.log("Error", err);
     return NextResponse.json(
       { message: "Error uploading file" },
+      { status: 500 },
+    );
+  }
+}
+
+export async function GET() {
+  const tokenUser = await getUserFromCookieAction();
+  const bucketName = process.env.SUPABASE_BUCKET_NAME;
+  const params = {
+    Bucket: bucketName,
+    Prefix: `${tokenUser?.email}/`,
+  };
+
+  try {
+    const data = await s3Client.send(new ListObjectsV2Command(params));
+    const fileKeys = data.Contents?.map((item) => item.Key);
+    return NextResponse.json(
+      {
+        message: "Files fetched successfully",
+        fileKeys,
+      },
+      { status: 200 },
+    );
+  } catch (err) {
+    console.log("Error", err);
+    return NextResponse.json(
+      { message: "Error fetching files" },
       { status: 500 },
     );
   }

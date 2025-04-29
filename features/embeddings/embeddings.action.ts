@@ -1,38 +1,61 @@
 "use server";
 
 import { generateEmbeddingAction } from "../open-ai/open-ai.action";
-import { DocumentEmbedding } from "./embeddings.type";
+import { getDocumentText } from "../s3/s3.action";
+import pineconeIndex from "@/lib/pinecone";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
+import React from "react";
 
 // Constants for chunking
 const CHUNK_SIZE = 800;
 const CHUNK_OVERLAP = 200;
 
-/**
- * Prepares and embeds text content using OpenAI and returns chunk-embedding pairs.
- * @param rawText Full string content of a file (e.g. PDF or DOCX converted to text)
- * @param sourceFileName The original filename (for metadata tracking)
- */
-export async function generateEmbeddingsFromText(
-  rawText: string,
-  sourceFileName: string,
-): Promise<DocumentEmbedding[]> {
+function chunkText(text: string) {
   const splitter = new RecursiveCharacterTextSplitter({
     chunkSize: CHUNK_SIZE,
     chunkOverlap: CHUNK_OVERLAP,
   });
+  return splitter.createDocuments([text]);
+}
 
-  const chunks = await splitter.createDocuments([rawText]);
-  const documents: DocumentEmbedding[] = [];
-
-  for (const chunk of chunks) {
-    const embedding = await generateEmbeddingAction(chunk.pageContent);
-    documents.push({
-      content: chunk.pageContent,
-      embedding,
-      source: sourceFileName,
-    });
+export async function generateEmbeddingsForFile(
+  key: string,
+  docId: string,
+  setProgress: React.Dispatch<React.SetStateAction<number>>,
+) {
+  const PINECONE_INDEX_NAME = process.env.PINECONE_INDEX_NAME;
+  setProgress(0);
+  try {
+    if (!PINECONE_INDEX_NAME) {
+      throw new Error("Pinecone index name is not defined");
+    }
+    const text = await getDocumentText(key);
+    if (!text) {
+      throw new Error("No text found in document");
+    }
+    setProgress(20);
+    const chunks = await chunkText(text);
+    setProgress(50);
+    // Generate embeddings for each chunk
+    const embeddings = await Promise.all(
+      chunks.map(async (chunk) => {
+        const embedding = await generateEmbeddingAction(chunk.pageContent);
+        return {
+          id: `${docId}-${chunk.id}`,
+          values: embedding,
+          metadata: {
+            text: chunk.pageContent,
+            fileKey: key,
+          },
+        };
+      }),
+    );
+    setProgress(80);
+    // Store embeddings in Pinecone
+    await pineconeIndex.upsert(embeddings);
+    setProgress(100);
+  } catch (error) {
+    console.error("Error generating embeddings:", error);
+    throw new Error("Failed to generate embeddings");
   }
-
-  return documents;
 }

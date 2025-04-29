@@ -1,6 +1,6 @@
 import { S3Client } from "@aws-sdk/client-s3";
 
-const s3 = new S3Client({
+const s3Client = new S3Client({
   forcePathStyle: true,
   endpoint: process.env.SUPABASE_S3_ENDPOINT,
   region: process.env.SUPABASE_REGION!,
@@ -10,4 +10,4 @@ const s3 = new S3Client({
   },
 });
 
-export default s3;
+export default s3Client;
