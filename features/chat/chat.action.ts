@@ -141,3 +141,14 @@ export async function getChatSessionsAction() {
     updatedAt: s.updatedAt,
   }));
 }
+
+export async function deleteChatSessionAction(sessionId: string) {
+  // Authenticate user
+  const tokenUser = await getUserFromCookieAction();
+  if (!tokenUser) throw new Error("Unauthorized");
+
+  // Delete chat session from Prisma
+  await prisma.chatSession.delete({
+    where: { id: sessionId },
+  });
+}

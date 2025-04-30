@@ -1,6 +1,7 @@
 import { OpenAIModel } from "../open-ai/open-ai.type";
 import {
   createChatSessionAction,
+  deleteChatSessionAction,
   getAnswerFromQuery,
   getChatHistoryAction,
   getChatSessionsAction,
@@ -120,4 +121,17 @@ export const useChatSessions = () =>
   useQuery({
     queryKey: ["chatSessions"],
     queryFn: () => getChatSessionsAction(),
+  });
+
+export const useDeleteChatSession = () =>
+  useMutation({
+    mutationFn: deleteChatSessionAction,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["chatSessions"] });
+      toast.success("Chat session deleted");
+    },
+    onError: (err: unknown) => {
+      const message = err instanceof Error ? err.message : "Unknown error";
+      toast.error(message);
+    },
   });

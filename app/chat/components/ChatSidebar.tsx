@@ -19,6 +19,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   useChatSessions,
   useCreateChatSession,
+  useDeleteChatSession,
 } from "@/features/chat/chat.query";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -41,9 +42,7 @@ export function ChatSidebar() {
   const pathname = usePathname();
   const [searchQuery, setSearchQuery] = useState("");
   const [isCreatingChat, setIsCreatingChat] = useState(false);
-  const { data: chatSessions, isLoading, error, refetch } = useChatSessions();
-
-  // Function to create a new chat session - replace with your actual implementation
+  const { data: chatSessions, isLoading, error } = useChatSessions();
 
   // Extract the current chat ID from the URL if available
   const currentChatId = pathname.includes("/chat/")
@@ -58,18 +57,26 @@ export function ChatSidebar() {
     : chatSessions;
 
   const createChatSessionMutation = useCreateChatSession();
-
   // Handle creating a new chat
   const handleCreateNewChat = async () => {
     try {
       setIsCreatingChat(true);
       const newSessionId = await createChatSessionMutation.mutateAsync();
-      await refetch();
       router.push(`/chat/${newSessionId}`);
     } catch (error) {
       console.error("Error creating new chat:", error);
     } finally {
       setIsCreatingChat(false);
+    }
+  };
+
+  const deleteChatSessionMutation = useDeleteChatSession();
+  // Handle deleting a chat
+  const handleDeleteChat = async (id: string) => {
+    try {
+      await deleteChatSessionMutation.mutateAsync(id);
+    } catch (error) {
+      console.error("Error deleting chat:", error);
     }
   };
 
@@ -182,7 +189,7 @@ export function ChatSidebar() {
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem
                             className="text-destructive focus:text-destructive"
-                            onClick={() => {}}>
+                            onClick={async () => handleDeleteChat(session.id)}>
                             <Trash2 className="mr-2 h-4 w-4" />
                             Delete
                           </DropdownMenuItem>
