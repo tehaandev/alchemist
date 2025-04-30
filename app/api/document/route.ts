@@ -2,8 +2,8 @@ import { MAX_FILE_SIZE } from "@/constants";
 import { getUserFromCookieAction } from "@/features/auth/auth.action";
 import { prisma } from "@/lib/prisma";
 import s3Client from "@/lib/s3";
-import { DocumentStatus } from "@/prisma/generated";
 import { ListObjectsV2Command, PutObjectCommand } from "@aws-sdk/client-s3";
+import { DocumentStatus } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {

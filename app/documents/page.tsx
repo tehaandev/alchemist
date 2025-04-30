@@ -23,7 +23,7 @@ import {
   useUploadToS3,
 } from "@/features/documents/documents.query";
 import { useEmbeddingsForFile } from "@/features/embeddings/embeddings.query";
-import { DocumentStatus } from "@/prisma/generated";
+import { DocumentStatus } from "@prisma/client";
 import { FileText, Loader2, Plus } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";

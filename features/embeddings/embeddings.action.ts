@@ -5,7 +5,7 @@ import { generateEmbeddingAction } from "../open-ai/open-ai.action";
 import { getDocumentText } from "../s3/s3.action";
 import pineconeIndex from "@/lib/pinecone";
 import { prisma } from "@/lib/prisma";
-import { DocumentStatus } from "@/prisma/generated";
+import { DocumentStatus } from "@prisma/client";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 
 // Constants for chunking
