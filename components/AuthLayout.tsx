@@ -12,9 +12,10 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { useUser } from "@/features/auth/auth.query";
+import { useLogoutUser, useUser } from "@/features/auth/auth.query";
 import {
   FileText,
+  Loader2,
   LogOut,
   Menu,
   MessageSquare,
@@ -31,6 +32,10 @@ export default function AuthLayout({
   const pathname = usePathname();
   const { data: user } = useUser();
   const [open, setOpen] = React.useState(false);
+  const logoutMutation = useLogoutUser();
+  const handleLogout = async () => {
+    await logoutMutation.mutateAsync();
+  };
   return (
     <section className="bg-background justify flex min-h-screen w-screen flex-col items-center">
       <header className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 mx-auto w-full border-b px-10 backdrop-blur">
@@ -95,8 +100,16 @@ export default function AuthLayout({
                   <span>Settings</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <LogOut className="mr-2 h-4 w-4" />
+                <DropdownMenuItem
+                  onClick={async () => {
+                    await handleLogout();
+                    setOpen(false);
+                  }}>
+                  {logoutMutation.isPending ? (
+                    <Loader2 className="animate-spin" size={16} />
+                  ) : (
+                    <LogOut className="mr-2" size={16} />
+                  )}
                   <span>Log out</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -149,8 +162,15 @@ export default function AuthLayout({
                     <Button
                       variant="outline"
                       className="justify-start"
-                      onClick={() => setOpen(false)}>
-                      <LogOut className="mr-2 h-4 w-4" />
+                      onClick={async () => {
+                        await handleLogout();
+                        setOpen(false);
+                      }}>
+                      {!logoutMutation.isPending ? (
+                        <Loader2 className="animate-spin" size={16} />
+                      ) : (
+                        <LogOut className="mr-2" size={16} />
+                      )}
                       Log out
                     </Button>
                   </div>

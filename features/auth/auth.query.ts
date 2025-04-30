@@ -46,9 +46,6 @@ export const useLogoutUser = () =>
   useMutation({
     mutationFn: logoutAction,
     mutationKey: ["logoutUser"],
-    onSuccess: () => {
-      toast.success("Logout successful");
-    },
     onError: (error) => {
       toast.error(error.message);
     },
