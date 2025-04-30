@@ -11,14 +11,14 @@ datasource db {
 }
 
 model User {
-  id        String     @id @default(cuid())
-  name      String
-  email     String     @unique
-  password  String
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  Document  Document[]
+  id          String        @id @default(cuid())
+  name        String
+  email       String        @unique
+  password    String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
   ChatSession ChatSession[]
+  Document    Document[]
 }
 
 model Document {
@@ -32,36 +32,32 @@ model Document {
   uploadedBy String
   User       User           @relation(fields: [uploadedBy], references: [id], onDelete: Cascade)
 
-  // Indexes
   @@index([status])
-  @@index([uploadedBy, status]) // Composite index for common query pattern
+  @@index([uploadedBy, status])
   @@index([createdAt])
 }
 
 model ChatSession {
-  id         String    @id @default(cuid())
-  createdBy  String
-  User       User      @relation(fields: [createdBy], references: [id], onDelete: Cascade)
-  title      String?
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt 
-  messages   Message[]
+  id        String    @id @default(cuid())
+  createdBy String
+  title     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  User      User      @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  messages  Message[]
 
-  // Indexes
   @@index([id])
 }
 
 model Message {
-  id            String   @id @default(cuid())
-  session       ChatSession @relation(fields: [sessionId], references: [id])
-  sessionId     String
-  role          MessageRole
-  content       String
-  createdAt     DateTime @default(now())
-  // Optionally store embeddings to re-use or debug:
-  embeddingId   String?  
+  id          String      @id @default(cuid())
+  sessionId   String
+  role        MessageRole
+  content     String
+  createdAt   DateTime    @default(now())
+  embeddingId String?
+  session     ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 
-  // Indexes
   @@index([sessionId])
   @@index([id])
   @@index([embeddingId])

@@ -30,7 +30,8 @@ export default function Chat({ sessionId }: { sessionId?: string }) {
   const router = useRouter();
   useEffect(() => {
     // If there is a sessionId in the URL, it means the user is in the correct URL
-    if (activeSession && !sessionId) {
+    if (activeSession && !sessionId && activeSession !== sessionId) {
+      // If the sessionId in the URL is different from the activeSession, replace the URL
       router.replace(`/chat/${activeSession}`);
     }
   }, [activeSession, router, sessionId]);
@@ -57,15 +58,15 @@ export default function Chat({ sessionId }: { sessionId?: string }) {
         />
       </div>
 
-      <Card className="mb-4 flex max-h-[60vh] w-full flex-col overflow-hidden border-2">
+      <Card className="mb-4 flex h-[58vh] w-[75vw] flex-col overflow-hidden border-2">
         <div className="flex-1 overflow-auto p-4">
-          <div className="flex w-full flex-col space-y-4">
+          <div className="flex h-full w-full flex-col space-y-4">
             {isLoadingHistory ? (
               <div className="flex h-full items-center justify-center p-8">
                 <Loader2 className="animate-spin" />
               </div>
             ) : messages.length === 0 ? (
-              <div className="flex h-full items-center justify-center p-8">
+              <div className="flex flex-1 flex-col items-center justify-center p-8">
                 <div className="flex flex-col items-center space-y-4 text-center">
                   <Bot size={32} />
                   <p className="text-gray-500">
