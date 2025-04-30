@@ -30,6 +30,11 @@ model Document {
   updatedAt  DateTime       @updatedAt
   uploadedBy String
   User       User           @relation(fields: [uploadedBy], references: [id], onDelete: Cascade)
+
+  // Indexes
+  @@index([status])
+  @@index([uploadedBy, status]) // Composite index for common query pattern
+  @@index([createdAt])
 }
 
 enum DocumentStatus {
