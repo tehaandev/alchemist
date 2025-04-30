@@ -25,7 +25,6 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import {
   Loader2,
-  MessageSquare,
   MoreVertical,
   PlusCircle,
   Search,
@@ -86,25 +85,20 @@ export function ChatSidebar() {
   };
 
   return (
-    <Sidebar className="bg-black">
-      <SidebarHeader>
+    <Sidebar>
+      <SidebarHeader className="border-b px-3 py-4">
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center gap-2">
             <Image
               src={"/logo.webp"}
               alt="Alchemist Logo"
-              width={32}
-              height={32}
-              className="h-8 w-8 rounded-full"
+              width={30}
+              height={30}
             />
             <span className="text-xl font-bold">Alchemist</span>
           </Link>
         </div>
-        <div className="flex items-center justify-between px-2">
-          <h2 className="text-lg font-semibold">Chats</h2>
-          {/* <SidebarTrigger /> */}
-        </div>
-        <div className="px-2 pt-2">
+        <div className="pt-2">
           <Button
             variant="outline"
             className="w-full justify-start gap-2"
@@ -118,7 +112,7 @@ export function ChatSidebar() {
             New Chat
           </Button>
         </div>
-        <div className="px-2 pt-2">
+        <div className="pt-2">
           <div className="relative">
             <Search className="text-muted-foreground absolute top-2.5 left-2 h-4 w-4" />
             <Input
@@ -130,12 +124,12 @@ export function ChatSidebar() {
           </div>
         </div>
       </SidebarHeader>
-      <SidebarContent>
-        <ScrollArea className="h-[calc(100vh-4rem)]">
+      <SidebarContent className="p-3">
+        <ScrollArea>
           {isLoading ? (
-            <div className="space-y-2 p-2">
+            <div className="space-y-2">
               {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="flex items-center gap-2 p-2">
+                <div key={i} className="flex items-center gap-2">
                   <Skeleton className="h-10 w-10 rounded-full" />
                   <div className="flex-1 space-y-1">
                     <Skeleton className="h-4 w-3/4" />
@@ -145,17 +139,17 @@ export function ChatSidebar() {
               ))}
             </div>
           ) : error ? (
-            <div className="text-muted-foreground p-4 text-center text-sm">
+            <div className="text-muted-foreground text-center text-sm">
               Error loading chats. Please try again.
             </div>
           ) : filteredSessions?.length === 0 ? (
-            <div className="text-muted-foreground p-4 text-center text-sm">
+            <div className="text-muted-foreground text-center text-sm">
               {searchQuery
                 ? "No chats found."
                 : "No chats yet. Start a new chat!"}
             </div>
           ) : (
-            <div className="space-y-1 p-2">
+            <div className="space-y-1">
               {filteredSessions?.map((session) => (
                 <div
                   key={session.id}
@@ -165,9 +159,6 @@ export function ChatSidebar() {
                       : ""
                   }`}
                   onClick={() => handleSelectChat(session.id)}>
-                  <div className="bg-primary/10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full">
-                    <MessageSquare className="h-4 w-4" />
-                  </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between">
                       <p
@@ -195,15 +186,6 @@ export function ChatSidebar() {
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
-                    </div>
-                    <div className="text-muted-foreground flex items-center text-xs">
-                      {/* <p className="truncate">
-                        {session.lastMessage || "No messages yet"}
-                      </p> */}
-                      <span className="mx-1">·</span>
-                      <p className="whitespace-nowrap">
-                        {dayjs(session.updatedAt).fromNow()}
-                      </p>
                     </div>
                   </div>
                 </div>

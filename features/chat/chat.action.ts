@@ -131,7 +131,7 @@ export async function getChatSessionsAction() {
   // Fetch chat sessions from Prisma
   const sessions = await prisma.chatSession.findMany({
     where: { createdBy: tokenUser.id },
-    orderBy: { createdAt: "desc" },
+    orderBy: { updatedAt: "desc" },
   });
 
   return sessions.map((s) => ({
