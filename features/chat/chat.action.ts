@@ -51,7 +51,8 @@ export async function getAnswerFromQuery({
   const expandedQueryVector = await generateEmbeddingAction(expandedQuery);
 
   // Search in Pinecone
-  const searchResults = await pineconeIndex.query({
+  const pineconeNamespace = pineconeIndex.namespace(tokenUser.email);
+  const searchResults = await pineconeNamespace.query({
     vector: expandedQueryVector,
     topK: 5,
     includeMetadata: true,

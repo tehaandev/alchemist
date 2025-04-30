@@ -55,7 +55,7 @@ export default function DocumentsPage() {
   }
 
   return (
-    <div className="p-4 lg:p-8 xl:p-12">
+    <div className="mx-auto w-[75vw] py-4 lg:py-8 xl:py-12">
       <div className="mb-6 flex items-center justify-end">
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
@@ -113,7 +113,7 @@ export default function DocumentsPage() {
           </p>
         </div>
       ) : (
-        <div className="w-[75vw]">
+        <div className="w-full">
           {documents?.map((doc) => <DocumentListItem key={doc.id} doc={doc} />)}
         </div>
       )}

@@ -73,7 +73,7 @@ export default function Chat({ sessionId }: { sessionId?: string }) {
         <div className="flex-1 overflow-auto p-4">
           <div className="flex h-full w-full flex-col space-y-4">
             {!sessionId && (
-              <div className="flex h-full items-center justify-center p-8">
+              <div className="flex flex-1 flex-col items-center justify-center space-y-2 p-8">
                 <p className="text-gray-500">
                   {`Select a model and start chatting!`}
                 </p>
@@ -88,7 +88,7 @@ export default function Chat({ sessionId }: { sessionId?: string }) {
                     ) : (
                       <PlusCircle className="h-4 w-4" />
                     )}
-                    New Chat
+                    Start New Chat
                   </Button>
                 </div>
               </div>
@@ -97,7 +97,7 @@ export default function Chat({ sessionId }: { sessionId?: string }) {
               <div className="flex h-full items-center justify-center p-8">
                 <Loader2 className="animate-spin" />
               </div>
-            ) : messages.length === 0 ? (
+            ) : sessionId && messages.length === 0 ? (
               <div className="flex flex-1 flex-col items-center justify-center p-8">
                 <div className="flex flex-col items-center space-y-4 text-center">
                   <Bot size={32} />
@@ -128,40 +128,42 @@ export default function Chat({ sessionId }: { sessionId?: string }) {
         </div>
       </Card>
 
-      <div className="flex w-full items-start gap-3">
-        <Textarea
-          placeholder="Ask a question..."
-          value={input}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
+      {sessionId && (
+        <div className="flex w-full items-start gap-3">
+          <Textarea
+            placeholder="Ask a question..."
+            value={input}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                if (!input.trim()) return;
+                handleSubmit(input);
+                setInput("");
+              }
+              if (e.key === "Enter" && e.shiftKey) {
+                setInput((prev) => prev + "\n");
+              }
+            }}
+            onChange={(e) => setInput(e.target.value)}
+            className="flex-1 resize-y"
+          />
+          <Button
+            type="button"
+            size="icon"
+            onClick={() => {
               if (!input.trim()) return;
               handleSubmit(input);
               setInput("");
-            }
-            if (e.key === "Enter" && e.shiftKey) {
-              setInput((prev) => prev + "\n");
-            }
-          }}
-          onChange={(e) => setInput(e.target.value)}
-          className="flex-1 resize-y"
-        />
-        <Button
-          type="button"
-          size="icon"
-          onClick={() => {
-            if (!input.trim()) return;
-            handleSubmit(input);
-            setInput("");
-          }}
-          disabled={isPending || !input.trim()}>
-          {!isPending ? (
-            <Send size={16} />
-          ) : (
-            <Loader2 className="animate-spin" />
-          )}
-        </Button>
-      </div>
+            }}
+            disabled={isPending || !input.trim()}>
+            {!isPending ? (
+              <Send size={16} />
+            ) : (
+              <Loader2 className="animate-spin" />
+            )}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

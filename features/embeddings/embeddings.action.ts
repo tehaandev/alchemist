@@ -59,8 +59,8 @@ export async function generateEmbeddingsForFile({
         };
       }),
     );
-    // Store embeddings in Pinecone
-    await pineconeIndex.upsert(embeddings);
+    const pineconeNamespace = pineconeIndex.namespace(tokenUser.email);
+    await pineconeNamespace.upsert(embeddings);
     await prisma.document.update({
       where: { id: parseInt(docId) },
       data: {
