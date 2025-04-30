@@ -14,13 +14,13 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   FileText,
-  FlaskConical,
   LogOut,
   Menu,
   MessageSquare,
   Settings,
   User,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React from "react";
@@ -36,7 +36,13 @@ export default function AuthLayout({
         <div className="container mx-auto flex h-16 items-center justify-between">
           <div className="flex items-center gap-2">
             <Link href="/dashboard" className="flex items-center gap-2">
-              <FlaskConical className="text-primary h-6 w-6" />
+              <Image
+                src={"/logo.webp"}
+                alt="Alchemist Logo"
+                width={32}
+                height={32}
+                className="h-8 w-8 rounded-full"
+              />
               <span className="text-xl font-bold">Alchemist</span>
             </Link>
           </div>
