@@ -13,9 +13,11 @@ export const useDocumentKeysFromDb = () =>
 export const useUploadToS3 = () =>
   useMutation({
     mutationKey: ["uploadToS3"],
-    mutationFn: async (file: File) => {
+    mutationFn: async (files: File[]) => {
       const formData = new FormData();
-      formData.append("file", file);
+      for (const file of files) {
+        formData.append("file", file);
+      }
       try {
         const response = await axios.post("/api/document", formData, {
           headers: { "Content-Type": "multipart/form-data" },

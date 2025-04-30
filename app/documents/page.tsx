@@ -30,7 +30,7 @@ import { toast } from "sonner";
 
 export default function DocumentsPage() {
   const { data: documents, isLoading, error } = useDocumentKeysFromDb();
-  const [newDocument, setNewDocument] = useState<File>();
+  const [newDocuments, setNewDocuments] = useState<File[]>();
   const [progress, setProgress] = useState(0);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -40,11 +40,11 @@ export default function DocumentsPage() {
 
   const handleAddDocument = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newDocument) {
+    if (!newDocuments) {
       toast.error("Please select a document to upload");
       return;
     }
-    addDocumentMutation.mutate(newDocument);
+    addDocumentMutation.mutate(newDocuments);
   };
 
   if (isLoading) {
@@ -87,11 +87,13 @@ export default function DocumentsPage() {
                 <Label htmlFor="title">Title</Label>
                 <Input
                   type="file"
+                  multiple
                   id="title"
                   onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      setNewDocument(file);
+                    const files = e.target.files;
+                    const fileArray = Array.from(files || []);
+                    if (fileArray.length > 0) {
+                      setNewDocuments(fileArray);
                     }
                   }}
                   placeholder="Enter document title"
