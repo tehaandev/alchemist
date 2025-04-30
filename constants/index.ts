@@ -1,3 +1,5 @@
+import { AIModel, OpenAIModel } from "@/features/open-ai/open-ai.type";
+
 export const AUTH_COOKIE_NAME = "auth_token";
 
 export const COOKIE_OPTIONS = {
@@ -9,3 +11,70 @@ export const COOKIE_OPTIONS = {
 };
 
 export const MAX_FILE_SIZE = 20 * 1024 * 1024; // 5MB
+
+export const AI_MODELS: AIModel[] = [
+  {
+    id: OpenAIModel.GPT_41_nano,
+    name: "GPT-4.1 nano",
+    provider: "OpenAI",
+    description: "Fastest, most cost-effective GPT-4.1 model",
+    maxTokens: 4096,
+    isAvailable: true,
+  },
+  {
+    id: OpenAIModel.GPT_4O_MINI,
+    name: "GPT-4o Mini",
+    provider: "OpenAI",
+    description: "Fast, affordable small model for focused tasks",
+    maxTokens: 4096,
+    isAvailable: true,
+  },
+  {
+    id: OpenAIModel.GPT_O4_MINI,
+    name: "GPT-o4 Mini",
+    provider: "OpenAI",
+    description: "Faster, more affordable reasoning model",
+    maxTokens: 4096,
+    isAvailable: true,
+  },
+  {
+    id: "gpt-3.5-turbo",
+    name: "GPT-3.5 Turbo",
+    provider: "OpenAI",
+    description: "Fast and cost-effective model",
+    maxTokens: 4096,
+    isAvailable: false,
+  },
+  {
+    id: "claude-3-opus",
+    name: "Claude 3 Opus",
+    provider: "Anthropic",
+    description: "High-performance Anthropic model",
+    maxTokens: 8192,
+    isAvailable: false,
+  },
+  {
+    id: "claude-3-sonnet",
+    name: "Claude 3 Sonnet",
+    provider: "Anthropic",
+    description: "Balanced speed and power",
+    maxTokens: 8192,
+    isAvailable: false,
+  },
+  {
+    id: "command-r",
+    name: "Command R",
+    provider: "Cohere",
+    description: "Optimized for retrieval tasks",
+    maxTokens: 4096,
+    isAvailable: false,
+  },
+  {
+    id: "llama-3-70b",
+    name: "Llama 3 70B",
+    provider: "Meta",
+    description: "Open-source model with strong capabilities",
+    maxTokens: 4096,
+    isAvailable: false,
+  },
+];

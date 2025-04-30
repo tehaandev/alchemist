@@ -1,20 +1,47 @@
 "use client";
 
+import { ModelSelector } from "@/components/ModelSelector";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
+import { AI_MODELS } from "@/constants";
 import { useChat } from "@/features/chat/chat.query";
+import { AIModel } from "@/features/open-ai/open-ai.type";
 import { cn } from "@/lib/utils";
 import { Bot, Send } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function ChatPage() {
-  const { handleSubmit, messages, isPending } = useChat();
   const [input, setInput] = useState<string>();
+  const [selectedModel, setSelectedModel] = useState<AIModel>(AI_MODELS[0]); // Default to gpt-4.1 nano
+  const { handleSubmit, messages, isPending } = useChat({
+    modelId: selectedModel.id,
+  });
+
+  const onModelChange = (model: AIModel) => {
+    setSelectedModel(model);
+    localStorage.setItem("selectedModel", model.id);
+  };
+
+  useEffect(() => {
+    const storedModelId = localStorage.getItem("selectedModel");
+    if (storedModelId) {
+      const storedModel = AI_MODELS.find((model) => model.id === storedModelId);
+      if (storedModel) {
+        setSelectedModel(storedModel);
+      }
+    }
+  }, []);
 
   return (
     <div className="mx-auto flex h-[60vh] max-h-screen flex-col p-4 md:p-8 lg:w-2/3">
-      {/* <h1 className="mb-4 text-2xl font-bold">RAG Chat Assistant</h1> */}
+      <div className="mb-6 flex w-full justify-between">
+        <h1 className="text-3xl font-bold">Chat</h1>
+        <ModelSelector
+          onModelChange={onModelChange}
+          selectedModel={selectedModel}
+        />
+      </div>
 
       <Card className="mb-4 flex w-full flex-1 flex-col overflow-hidden border-2">
         <div className="flex-1 overflow-scroll p-4">

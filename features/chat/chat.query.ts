@@ -1,9 +1,14 @@
+import { OpenAIModel } from "../open-ai/open-ai.type";
 import { getAnswerFromQuery } from "./chat.action";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 
-export const useChat = () => {
+export const useChat = ({
+  modelId = OpenAIModel.GPT_41_nano,
+}: {
+  modelId: string;
+}) => {
   const [messages, setMessages] = useState<
     {
       id: string;
@@ -28,6 +33,7 @@ export const useChat = () => {
       ]);
       const answer = await getAnswerFromQueryMutation.mutateAsync({
         query,
+        modelId,
       });
       setMessages((prev) => [
         ...(prev || []),

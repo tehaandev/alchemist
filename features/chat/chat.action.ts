@@ -5,9 +5,16 @@ import {
   generateAnswerAction,
   generateEmbeddingAction,
 } from "../open-ai/open-ai.action";
+import { OpenAIModel } from "../open-ai/open-ai.type";
 import pineconeIndex from "@/lib/pinecone";
 
-export async function getAnswerFromQuery({ query }: { query: string }) {
+export async function getAnswerFromQuery({
+  query,
+  modelId,
+}: {
+  query: string;
+  modelId: string;
+}) {
   try {
     // expand query
     const expandedQuery = await expandQueryAction(query);
@@ -31,7 +38,11 @@ export async function getAnswerFromQuery({ query }: { query: string }) {
       .map((match) => match.metadata?.text)
       .join("\n");
 
-    const answer = await generateAnswerAction(query, texts);
+    const answer = await generateAnswerAction(
+      query,
+      texts,
+      modelId as OpenAIModel,
+    );
     if (!answer) {
       throw new Error("Failed to generate answer");
     }
