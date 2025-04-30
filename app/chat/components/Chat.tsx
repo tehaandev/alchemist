@@ -30,7 +30,8 @@ export default function Chat({ sessionId }: { sessionId?: string }) {
   const router = useRouter();
   useEffect(() => {
     // If there is a sessionId in the URL, it means the user is in the correct URL
-    if (activeSession && !sessionId) {
+    if (activeSession && !sessionId && activeSession !== sessionId) {
+      // If the sessionId in the URL is different from the activeSession, replace the URL
       router.replace(`/chat/${activeSession}`);
     }
   }, [activeSession, router, sessionId]);
