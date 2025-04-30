@@ -73,7 +73,7 @@ export default function DocCard({
             <div>
               {document.status === DocumentStatus.EMBEDDED ? (
                 <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-100">
-                  Embeddings Generated
+                  Embedded
                 </span>
               ) : (
                 <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-800 dark:text-gray-200">
