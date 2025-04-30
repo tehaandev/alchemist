@@ -12,12 +12,25 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
+  id        String     @id @default(cuid())
   name      String
-  email     String   @unique
+  email     String     @unique
   password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  Document  Document[]
+}
+
+model Document {
+  id         Int            @id @default(autoincrement())
+  key        String         @unique
+  filename   String
+  status     DocumentStatus @default(UPLOADED)
+  metadata   Json?
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+  uploadedBy String
+  User       User           @relation(fields: [uploadedBy], references: [id], onDelete: Cascade)
 }
 
 enum DocumentStatus {
@@ -25,14 +38,4 @@ enum DocumentStatus {
   PROCESSING
   EMBEDDED
   FAILED
-}
-
-model Document {
-  id        Int             @id @default(autoincrement())
-  key       String          @unique
-  filename  String
-  status    DocumentStatus  @default(UPLOADED)
-  metadata  Json?
-  createdAt DateTime        @default(now())
-  updatedAt DateTime        @updatedAt
 }

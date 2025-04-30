@@ -46,6 +46,7 @@ export async function POST(request: NextRequest) {
         data: {
           key: `${tokenUser.email}/${fileName}`,
           filename: fileName,
+          uploadedBy: tokenUser.id,
           status: DocumentStatus.UPLOADED,
         },
       });
