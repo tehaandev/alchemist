@@ -1,5 +1,6 @@
 "use server";
 
+import { getUserFromCookieAction } from "../auth/auth.action";
 import {
   expandQueryAction,
   generateAnswerAction,
@@ -16,6 +17,10 @@ export async function getAnswerFromQuery({
   modelId: string;
 }) {
   try {
+    const tokenUser = await getUserFromCookieAction();
+    if (!tokenUser) {
+      throw new Error("Unauthorized");
+    }
     // expand query
     const expandedQuery = await expandQueryAction(query);
     if (!expandedQuery) {
