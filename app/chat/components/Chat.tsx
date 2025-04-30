@@ -5,10 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { AI_MODELS } from "@/constants";
-import { useChat } from "@/features/chat/chat.query";
+import { useChat, useCreateChatSession } from "@/features/chat/chat.query";
 import { AIModel } from "@/features/open-ai/open-ai.type";
 import { cn } from "@/lib/utils";
-import { Bot, Loader2, Send } from "lucide-react";
+import { Bot, Loader2, PlusCircle, Send } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -41,6 +41,17 @@ export default function Chat({ sessionId }: { sessionId?: string }) {
     localStorage.setItem("selectedModel", model.id);
   };
 
+  const createChatSessionMutation = useCreateChatSession();
+  // Handle creating a new chat
+  const handleCreateNewChat = async () => {
+    try {
+      const newSessionId = await createChatSessionMutation.mutateAsync();
+      router.push(`/chat/${newSessionId}`);
+    } catch (error) {
+      console.error("Error creating new chat:", error);
+    }
+  };
+
   useEffect(() => {
     const storedModelId = localStorage.getItem("selectedModel");
     if (storedModelId) {
@@ -61,7 +72,28 @@ export default function Chat({ sessionId }: { sessionId?: string }) {
       <Card className="mb-4 flex h-[58vh] w-[75vw] flex-col overflow-hidden border-2">
         <div className="flex-1 overflow-auto p-4">
           <div className="flex h-full w-full flex-col space-y-4">
-            {isLoadingHistory ? (
+            {!sessionId && (
+              <div className="flex h-full items-center justify-center p-8">
+                <p className="text-gray-500">
+                  {`Select a model and start chatting!`}
+                </p>
+                <div className="pt-2">
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start gap-2"
+                    onClick={handleCreateNewChat}
+                    disabled={createChatSessionMutation.isPending}>
+                    {createChatSessionMutation.isPending ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <PlusCircle className="h-4 w-4" />
+                    )}
+                    New Chat
+                  </Button>
+                </div>
+              </div>
+            )}
+            {sessionId && isLoadingHistory ? (
               <div className="flex h-full items-center justify-center p-8">
                 <Loader2 className="animate-spin" />
               </div>

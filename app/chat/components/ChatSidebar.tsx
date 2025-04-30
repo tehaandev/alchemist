@@ -40,7 +40,6 @@ export function ChatSidebar() {
   const router = useRouter();
   const pathname = usePathname();
   const [searchQuery, setSearchQuery] = useState("");
-  const [isCreatingChat, setIsCreatingChat] = useState(false);
   const { data: chatSessions, isLoading, error } = useChatSessions();
 
   // Extract the current chat ID from the URL if available
@@ -59,13 +58,10 @@ export function ChatSidebar() {
   // Handle creating a new chat
   const handleCreateNewChat = async () => {
     try {
-      setIsCreatingChat(true);
       const newSessionId = await createChatSessionMutation.mutateAsync();
       router.push(`/chat/${newSessionId}`);
     } catch (error) {
       console.error("Error creating new chat:", error);
-    } finally {
-      setIsCreatingChat(false);
     }
   };
 
@@ -74,6 +70,7 @@ export function ChatSidebar() {
   const handleDeleteChat = async (id: string) => {
     try {
       await deleteChatSessionMutation.mutateAsync(id);
+      router.replace("/chat");
     } catch (error) {
       console.error("Error deleting chat:", error);
     }
@@ -103,8 +100,8 @@ export function ChatSidebar() {
             variant="outline"
             className="w-full justify-start gap-2"
             onClick={handleCreateNewChat}
-            disabled={isCreatingChat}>
-            {isCreatingChat ? (
+            disabled={createChatSessionMutation.isPending}>
+            {createChatSessionMutation.isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               <PlusCircle className="h-4 w-4" />
