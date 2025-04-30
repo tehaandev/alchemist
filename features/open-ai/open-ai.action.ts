@@ -18,7 +18,7 @@ export async function generateEmbeddingAction(text: string) {
 
 export async function expandQueryAction(
   query: string,
-  model: OpenAIModel = OpenAIModel.GPT_4O_MINI,
+  model: OpenAIModel = OpenAIModel.GPT_41_nano,
 ) {
   try {
     const response = await openai.chat.completions.create({

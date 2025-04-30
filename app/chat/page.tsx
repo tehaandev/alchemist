@@ -8,7 +8,7 @@ import { AI_MODELS } from "@/constants";
 import { useChat } from "@/features/chat/chat.query";
 import { AIModel } from "@/features/open-ai/open-ai.type";
 import { cn } from "@/lib/utils";
-import { Bot, Send } from "lucide-react";
+import { Bot, Loader2, Send } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export default function ChatPage() {
@@ -34,7 +34,7 @@ export default function ChatPage() {
   }, []);
 
   return (
-    <div className="mx-auto flex h-[60vh] max-h-screen flex-col p-4 md:p-8 lg:w-2/3">
+    <div className="mx-auto lg:w-2/3">
       <div className="mb-6 flex w-full justify-between">
         <h1 className="text-3xl font-bold">Chat</h1>
         <ModelSelector
@@ -43,7 +43,7 @@ export default function ChatPage() {
         />
       </div>
 
-      <Card className="mb-4 flex w-full flex-1 flex-col overflow-hidden border-2">
+      <Card className="mb-4 flex w-full flex-1 flex-col border-2">
         <div className="flex-1 overflow-scroll p-4">
           <div className="flex flex-col space-y-4">
             {messages.length === 0 ? (
@@ -94,7 +94,7 @@ export default function ChatPage() {
             }
           }}
           onChange={(e) => setInput(e.target.value)}
-          className="min-h-12 flex-1 resize-none"
+          className="flex-1 resize-y"
         />
         <Button
           type="button"
@@ -105,8 +105,11 @@ export default function ChatPage() {
             setInput("");
           }}
           disabled={isPending || !input?.trim()}>
-          <Send className="h-4 w-4" />
-          <span className="sr-only">Send message</span>
+          {!isPending ? (
+            <Send size={16} />
+          ) : (
+            <Loader2 className="animate-spin" />
+          )}
         </Button>
       </div>
     </div>
