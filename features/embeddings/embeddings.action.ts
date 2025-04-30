@@ -85,7 +85,7 @@ export async function deleteEmbeddingsForFile({ docId }: { docId: string }) {
     }
     const pineconeNamespace = pineconeIndex.namespace(tokenUser.email);
     const pageOneList = await pineconeNamespace.listPaginated({
-      prefix: docId,
+      prefix: `${docId}-`,
     });
     const pageOneVectorIds = pageOneList.vectors?.map((vector) => vector.id);
     if (pageOneVectorIds && pageOneVectorIds.length > 0) {
