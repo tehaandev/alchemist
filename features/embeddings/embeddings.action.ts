@@ -83,10 +83,13 @@ export async function deleteEmbeddingsForFile({ docId }: { docId: string }) {
     if (!PINECONE_INDEX_NAME) {
       throw new Error("Pinecone index name is not defined");
     }
-    const pageOneList = await pineconeIndex.listPaginated({ prefix: docId });
+    const pineconeNamespace = pineconeIndex.namespace(tokenUser.email);
+    const pageOneList = await pineconeNamespace.listPaginated({
+      prefix: docId,
+    });
     const pageOneVectorIds = pageOneList.vectors?.map((vector) => vector.id);
     if (pageOneVectorIds && pageOneVectorIds.length > 0) {
-      await pineconeIndex.deleteMany([...pageOneVectorIds]);
+      await pineconeNamespace.deleteMany([...pageOneVectorIds]);
     }
     await prisma.document.update({
       where: { id: parseInt(docId) },
