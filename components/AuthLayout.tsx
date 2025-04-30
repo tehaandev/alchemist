@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useUser } from "@/features/auth/auth.query";
 import {
   FileText,
   LogOut,
@@ -28,6 +29,7 @@ export default function AuthLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const pathname = usePathname();
+  const { data: user } = useUser();
   const [open, setOpen] = React.useState(false);
   return (
     <section className="bg-background justify flex min-h-screen w-screen flex-col items-center">
@@ -65,11 +67,10 @@ export default function AuthLayout({
                   variant="ghost"
                   className="relative h-8 w-8 rounded-full">
                   <Avatar className="h-8 w-8">
-                    <AvatarImage
-                      src="/placeholder.svg?height=32&width=32"
-                      alt="User"
-                    />
-                    <AvatarFallback>U</AvatarFallback>
+                    <AvatarImage alt="User" />
+                    <AvatarFallback>
+                      {user?.name.charAt(0).toUpperCase() ?? "U"}
+                    </AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
@@ -77,10 +78,10 @@ export default function AuthLayout({
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm leading-none font-medium">
-                      User Name
+                      {user?.name ?? "User"}
                     </p>
                     <p className="text-muted-foreground text-xs leading-none">
-                      user@example.com
+                      {user?.email ?? ""}
                     </p>
                   </div>
                 </DropdownMenuLabel>

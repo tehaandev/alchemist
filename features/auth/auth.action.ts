@@ -94,3 +94,19 @@ export async function getUserFromCookieAction() {
     return null;
   }
 }
+
+export async function getUser() {
+  try {
+    const tokenUser = await getUserFromCookieAction();
+    if (!tokenUser) {
+      throw new Error("Unauthorized");
+    }
+    const user = await prisma.user.findUniqueOrThrow({
+      where: { id: tokenUser.id },
+    });
+    return user;
+  } catch (error) {
+    console.error("Error in getUser:", error);
+    throw new Error("Failed to fetch user");
+  }
+}
