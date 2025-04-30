@@ -1,6 +1,6 @@
 "use client";
 
-import DocCard from "./components/DocCard";
+import DocumentListItem from "./components/DocumentListItem";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -55,8 +55,8 @@ export default function DocumentsPage() {
   }
 
   return (
-    <div className="m-4 lg:m-8 xl:m-12">
-      <div className="mb-6">
+    <div className="p-4 lg:p-8 xl:p-12">
+      <div className="mb-6 flex items-center justify-end">
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button className="flex items-center justify-end gap-2">
@@ -113,8 +113,8 @@ export default function DocumentsPage() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3">
-          {documents?.map((doc) => <DocCard key={doc.key} doc={doc} />)}
+        <div className="w-[75vw]">
+          {documents?.map((doc) => <DocumentListItem key={doc.id} doc={doc} />)}
         </div>
       )}
     </div>
