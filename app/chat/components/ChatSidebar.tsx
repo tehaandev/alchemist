@@ -22,8 +22,6 @@ import {
 } from "@/features/chat/chat.query";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-// import { useChatSessions } from "@/lib/hooks/useChatSessions";
-// import { format } from "date-fns";
 import {
   Loader2,
   MessageSquare,
@@ -36,21 +34,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
 dayjs.extend(relativeTime);
-
-// Function to delete a chat session - replace with your actual implementation
-const deleteChatSession = async (id: string) => {
-  // This would be your actual implementation to delete a chat session
-  const response = await fetch(`/api/chat-sessions/${id}`, {
-    method: "DELETE",
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to delete chat session");
-  }
-
-  return true;
-};
-
 export function ChatSidebar() {
   const router = useRouter();
   const pathname = usePathname();
@@ -66,10 +49,11 @@ export function ChatSidebar() {
     : null;
 
   // Filter chat sessions based on search query
-  const filteredSessions =
-    chatSessions?.filter((session) =>
-      session.title?.toLowerCase().includes(searchQuery.toLowerCase()),
-    ) || [];
+  const filteredSessions = searchQuery
+    ? chatSessions?.filter((session) =>
+        session.title?.toLowerCase().includes(searchQuery.toLowerCase()),
+      )
+    : chatSessions;
 
   const createChatSessionMutation = useCreateChatSession();
 
@@ -84,22 +68,6 @@ export function ChatSidebar() {
       console.error("Error creating new chat:", error);
     } finally {
       setIsCreatingChat(false);
-    }
-  };
-
-  // Handle deleting a chat
-  const handleDeleteChat = async (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    try {
-      await deleteChatSession(id);
-      await refetch();
-
-      // If the deleted chat was the current one, redirect to the main page
-      if (currentChatId === id) {
-        router.push("/");
-      }
-    } catch (error) {
-      console.error("Error deleting chat:", error);
     }
   };
 
@@ -159,7 +127,7 @@ export function ChatSidebar() {
             <div className="text-muted-foreground p-4 text-center text-sm">
               Error loading chats. Please try again.
             </div>
-          ) : filteredSessions.length === 0 ? (
+          ) : filteredSessions?.length === 0 ? (
             <div className="text-muted-foreground p-4 text-center text-sm">
               {searchQuery
                 ? "No chats found."
@@ -167,7 +135,7 @@ export function ChatSidebar() {
             </div>
           ) : (
             <div className="space-y-1 p-2">
-              {filteredSessions.map((session) => (
+              {filteredSessions?.map((session) => (
                 <div
                   key={session.id}
                   className={`hover:bg-accent hover:text-accent-foreground flex cursor-pointer items-start gap-3 rounded-md p-2 ${
@@ -181,7 +149,11 @@ export function ChatSidebar() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between">
-                      <p className="truncate font-medium">{session.title}</p>
+                      <p
+                        className="line-clamp-1 truncate text-sm break-all whitespace-normal"
+                        title={session.title || "New chat"}>
+                        {session.title ?? "New chat"}
+                      </p>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button
@@ -196,7 +168,7 @@ export function ChatSidebar() {
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem
                             className="text-destructive focus:text-destructive"
-                            onClick={(e) => handleDeleteChat(session.id, e)}>
+                            onClick={() => {}}>
                             <Trash2 className="mr-2 h-4 w-4" />
                             Delete
                           </DropdownMenuItem>

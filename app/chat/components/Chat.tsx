@@ -9,7 +9,7 @@ import { useChat } from "@/features/chat/chat.query";
 import { AIModel } from "@/features/open-ai/open-ai.type";
 import { cn } from "@/lib/utils";
 import { Bot, Loader2, Send } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function Chat({ sessionId }: { sessionId?: string }) {
@@ -28,14 +28,12 @@ export default function Chat({ sessionId }: { sessionId?: string }) {
   });
 
   const router = useRouter();
-  const searchParams = useSearchParams();
   useEffect(() => {
-    if (activeSession) {
-      const params = new URLSearchParams(Array.from(searchParams.entries()));
-      params.set("sessionId", activeSession);
-      router.replace(`?${params.toString()}`);
+    // If there is a sessionId in the URL, it means the user is in the correct URL
+    if (activeSession && !sessionId) {
+      router.replace(`/chat/${activeSession}`);
     }
-  }, [activeSession, router, searchParams]);
+  }, [activeSession, router, sessionId]);
 
   const onModelChange = (model: AIModel) => {
     setSelectedModel(model);
@@ -51,7 +49,7 @@ export default function Chat({ sessionId }: { sessionId?: string }) {
   }, []);
 
   return (
-    <div className="mx-auto lg:w-2/3">
+    <div className="mx-auto">
       <div className="mb-6 flex w-full justify-between">
         <h1 className="text-3xl font-bold">Chat</h1>
         <ModelSelector
