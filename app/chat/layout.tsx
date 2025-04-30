@@ -11,7 +11,7 @@ export default function ChatLayout({
       <SidebarProvider>
         <section className="flex w-full flex-row">
           <ChatSidebar />
-          <div className="h-[calc(100vh-4rem)]">{children}</div>
+          <div className="h-[calc(100vh-4rem)] flex-1">{children}</div>
         </section>
       </SidebarProvider>
     </AuthLayout>

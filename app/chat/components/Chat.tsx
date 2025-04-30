@@ -49,7 +49,7 @@ export default function Chat({ sessionId }: { sessionId?: string }) {
   }, []);
 
   return (
-    <div className="mx-auto">
+    <div className="xl-m-12 m-4 lg:m-8">
       <div className="mb-6 flex w-full justify-between">
         <h1 className="text-3xl font-bold">Chat</h1>
         <ModelSelector
@@ -58,8 +58,8 @@ export default function Chat({ sessionId }: { sessionId?: string }) {
         />
       </div>
 
-      <Card className="mb-4 flex w-full flex-1 flex-col border-2">
-        <div className="flex-1 overflow-scroll p-4">
+      <Card className="mb-4 flex max-h-[60vh] flex-col overflow-hidden border-2">
+        <div className="flex-1 overflow-auto p-4">
           <div className="flex flex-col space-y-4">
             {isLoadingHistory ? (
               <div className="flex h-full items-center justify-center p-8">

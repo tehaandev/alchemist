@@ -35,7 +35,7 @@ export default function AuthLayout({
       <header className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 mx-auto w-full border-b backdrop-blur">
         <div className="container mx-auto flex h-16 items-center justify-between">
           <div className="flex items-center gap-2">
-            <Link href="/dashboard" className="flex items-center gap-2">
+            <Link href="/" className="flex items-center gap-2">
               <Image
                 src={"/logo.webp"}
                 alt="Alchemist Logo"
@@ -171,9 +171,7 @@ export default function AuthLayout({
           </div>
         </div>
       </header>
-      <main className="container mx-auto h-[calc(100vh-4rem)] flex-1 p-4 lg:p-8 xl:p-12">
-        {children}
-      </main>
+      <main>{children}</main>
     </section>
   );
 }
