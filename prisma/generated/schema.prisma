@@ -1,0 +1,41 @@
+generator client {
+  provider        = "prisma-client-js"
+  output          = "./generated/"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  directUrl  = env("DIRECT_URL")
+  extensions = [uuid_ossp(map: "uuid-ossp", schema: "extensions")]
+}
+
+model User {
+  id        String     @id @default(cuid())
+  name      String
+  email     String     @unique
+  password  String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  Document  Document[]
+}
+
+model Document {
+  id         Int            @id @default(autoincrement())
+  key        String         @unique
+  filename   String
+  status     DocumentStatus @default(UPLOADED)
+  metadata   Json?
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+  uploadedBy String
+  User       User           @relation(fields: [uploadedBy], references: [id], onDelete: Cascade)
+}
+
+enum DocumentStatus {
+  UPLOADED
+  PROCESSING
+  EMBEDDED
+  FAILED
+}
