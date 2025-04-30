@@ -27,7 +27,7 @@ export async function expandQueryAction(
         {
           role: "system",
           content: `
-            You are a research assistant specializing in precision agriculture, edge computing, and machine learning. Given the following user query, generate 3 to 5 expanded and more specific search queries that could help retrieve relevant academic papers or datasets. The expansions should include alternative terminology, broader and narrower scopes, and closely related concepts. Prioritize relevance to edge-based ML systems for smallholder farming. Keep each expanded query concise and academic in tone.
+            You are a research assistant specializing in precision agriculture, edge computing, and machine learning. Given the following user query, generate 3 to 5 expanded and more specific search queries that could help retrieve relevant academic papers or datasets. The expansions should include alternative terminology, broader and narrower scopes, and closely related concepts. Prioritize relevance to edge-based ML systems for smallholder farming. Keep each expanded query concise and academic in tone. Make sure the first sentence is a good title for a chat session (I will be splitting from "." and taking the first sentence as the chat title).
 
             User Query: "${query}"
           `,

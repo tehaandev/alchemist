@@ -7,53 +7,148 @@ import {
   generateEmbeddingAction,
 } from "../open-ai/open-ai.action";
 import { OpenAIModel } from "../open-ai/open-ai.type";
+import { GetAnswerParams } from "./chat.type";
 import pineconeIndex from "@/lib/pinecone";
+import { prisma } from "@/lib/prisma";
+import { MessageRole } from "@prisma/client";
 
 export async function getAnswerFromQuery({
+  sessionId,
   query,
-  modelId,
-}: {
-  query: string;
-  modelId: string;
-}) {
-  try {
-    const tokenUser = await getUserFromCookieAction();
-    if (!tokenUser) {
-      throw new Error("Unauthorized");
-    }
-    // expand query
-    const expandedQuery = await expandQueryAction(query);
-    if (!expandedQuery) {
-      throw new Error("Failed to expand query");
-    }
-    const expandedQueryVector = await generateEmbeddingAction(expandedQuery);
-    // pinecone search
-    const searchResults = await pineconeIndex.query({
-      vector: expandedQueryVector,
-      topK: 5,
-      includeMetadata: true,
+  modelId = OpenAIModel.GPT_41_nano,
+}: GetAnswerParams) {
+  // Authenticate user
+  const tokenUser = await getUserFromCookieAction();
+  if (!tokenUser) throw new Error("Unauthorized");
+
+  // Ensure session exists or create new
+  let session = sessionId
+    ? await prisma.chatSession.findUnique({ where: { id: sessionId } })
+    : null;
+  if (!session) {
+    session = await prisma.chatSession.create({
+      data: { title: query, createdBy: tokenUser.id },
     });
-
-    if (!searchResults || searchResults.matches.length === 0) {
-      throw new Error("No relevant documents found");
-    }
-
-    // Extract the text from the search results
-    const texts = searchResults.matches
-      .map((match) => match.metadata?.text)
-      .join("\n");
-
-    const answer = await generateAnswerAction(
-      query,
-      texts,
-      modelId as OpenAIModel,
-    );
-    if (!answer) {
-      throw new Error("Failed to generate answer");
-    }
-    return answer;
-  } catch (error) {
-    console.error("Error getting answer from query:", error);
-    throw new Error("Failed to get answer from query");
   }
+
+  // Persist user message
+  await prisma.message.create({
+    data: {
+      sessionId: session.id,
+      role: MessageRole.USER,
+      content: query,
+    },
+  });
+
+  // Expand query for better retrieval
+  const expandedQuery = await expandQueryAction(query);
+
+  if (!expandedQuery) throw new Error("Failed to expand query");
+
+  // Update session title with the first sentence of the expanded query
+  const firstSentence = expandedQuery.split(".")[0];
+  if (firstSentence) {
+    await prisma.chatSession.update({
+      where: { id: session.id },
+      data: { title: firstSentence },
+    });
+  }
+
+  // Generate embedding
+  const expandedQueryVector = await generateEmbeddingAction(expandedQuery);
+
+  // Search in Pinecone
+  const searchResults = await pineconeIndex.query({
+    vector: expandedQueryVector,
+    topK: 5,
+    includeMetadata: true,
+  });
+  if (!searchResults?.matches.length) {
+    throw new Error("No relevant documents found");
+  }
+
+  // Combine retrieved texts
+  const contexts = searchResults.matches
+    .map((m) => m.metadata?.text)
+    .join("\n---\n");
+
+  // Generate answer with RAG context
+  const answer = await generateAnswerAction(
+    query,
+    contexts,
+    modelId as OpenAIModel,
+  );
+  if (!answer) throw new Error("Failed to generate answer");
+
+  // Persist assistant reply
+  await prisma.message.create({
+    data: {
+      sessionId: session.id,
+      role: MessageRole.LLM,
+      content: answer,
+    },
+  });
+
+  return { sessionId: session.id, answer };
+}
+
+export async function getChatHistoryAction(sessionId?: string) {
+  // Authenticate user
+  const tokenUser = await getUserFromCookieAction();
+  if (!tokenUser) throw new Error("Unauthorized");
+
+  // Fetch chat history from Prisma
+  const messages = await prisma.message.findMany({
+    where: { sessionId },
+    orderBy: { createdAt: "asc" },
+  });
+
+  return messages.map((m) => ({
+    id: m.id,
+    role: m.role,
+    message: m.content,
+  }));
+}
+
+export async function createChatSessionAction() {
+  // Authenticate user
+  const tokenUser = await getUserFromCookieAction();
+  if (!tokenUser) throw new Error("Unauthorized");
+
+  // Create a new chat session
+  const session = await prisma.chatSession.create({
+    data: { title: null, createdBy: tokenUser.id },
+  });
+
+  return session.id;
+}
+
+export async function getChatSessionsAction() {
+  // Authenticate user
+  const tokenUser = await getUserFromCookieAction();
+  if (!tokenUser) throw new Error("Unauthorized");
+
+  // Fetch chat sessions from Prisma
+  const sessions = await prisma.chatSession.findMany({
+    where: { createdBy: tokenUser.id },
+    orderBy: { createdAt: "desc" },
+  });
+
+  return sessions.map((s) => ({
+    id: s.id,
+    title: s.title,
+    createdAt: s.createdAt,
+    updatedAt: s.updatedAt,
+  }));
+}
+
+export async function deleteChatSessionAction(sessionId: string) {
+  // Authenticate user
+  const tokenUser = await getUserFromCookieAction();
+  if (!tokenUser) throw new Error("Unauthorized");
+
+  // Delete chat session from Prisma
+  await prisma.chatSession.delete({
+    where: { id: sessionId },
+  });
 }

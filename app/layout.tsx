@@ -23,8 +23,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <ThemeLayout>
         <ReactQueryProvider>
-          <body
-            className={`${inter.className} flex items-center justify-center`}>
+          <body className={`${inter.className}`}>
             <Toaster position="top-center" />
             {children}
           </body>
