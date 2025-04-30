@@ -1,4 +1,5 @@
 import { getDocumentsFromDb } from "./documents.action";
+import { getDocumentFromDb } from "./documents.service";
 import queryClient from "@/lib/queryClient";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
@@ -35,4 +36,11 @@ export const useUploadToS3 = () =>
     onError: (error) => {
       toast.error(`Error: ${error.message}`);
     },
+  });
+
+export const useDocumentFromDb = (key: string) =>
+  useQuery({
+    queryKey: ["document", key],
+    queryFn: () => getDocumentFromDb(key),
+    enabled: !!key,
   });

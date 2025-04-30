@@ -7,6 +7,7 @@ import pineconeIndex from "@/lib/pinecone";
 import { prisma } from "@/lib/prisma";
 import { DocumentStatus } from "@prisma/client";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
+import { nanoid } from "nanoid";
 
 // Constants for chunking
 const CHUNK_SIZE = 800;
@@ -46,10 +47,12 @@ export async function generateEmbeddingsForFile({
     const embeddings = await Promise.all(
       chunks.map(async (chunk) => {
         const embedding = await generateEmbeddingAction(chunk.pageContent);
+        const chunkId = nanoid();
         return {
-          id: `${docId}-${chunk.id}`,
+          id: `${docId}-${chunkId}`,
           values: embedding,
           metadata: {
+            documentId: docId,
             text: chunk.pageContent,
             fileKey: key,
           },
@@ -67,5 +70,32 @@ export async function generateEmbeddingsForFile({
   } catch (error) {
     console.error("Error generating embeddings:", error);
     throw new Error("Failed to generate embeddings");
+  }
+}
+
+export async function deleteEmbeddingsForFile({ docId }: { docId: string }) {
+  const PINECONE_INDEX_NAME = process.env.PINECONE_INDEX_NAME;
+  try {
+    const tokenUser = await getUserFromCookieAction();
+    if (!tokenUser) {
+      throw new Error("Unauthorized");
+    }
+    if (!PINECONE_INDEX_NAME) {
+      throw new Error("Pinecone index name is not defined");
+    }
+    const pageOneList = await pineconeIndex.listPaginated({ prefix: docId });
+    const pageOneVectorIds = pageOneList.vectors?.map((vector) => vector.id);
+    if (pageOneVectorIds && pageOneVectorIds.length > 0) {
+      await pineconeIndex.deleteMany([...pageOneVectorIds]);
+    }
+    await prisma.document.update({
+      where: { id: parseInt(docId) },
+      data: {
+        status: DocumentStatus.UPLOADED,
+      },
+    });
+  } catch (error) {
+    console.error("Error deleting embeddings:", error);
+    throw new Error("Failed to delete embeddings");
   }
 }

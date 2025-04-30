@@ -9,6 +9,10 @@ export async function getDocumentsFromDb() {
     where: {
       uploadedBy: tokenUser?.id,
     },
+    select: {
+      id: true,
+      key: true,
+    },
   });
   return documents;
 }
