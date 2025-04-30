@@ -6,14 +6,6 @@ import { ListObjectsV2Command, PutObjectCommand } from "@aws-sdk/client-s3";
 import { DocumentStatus } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
-export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: "50mb",
-    },
-  },
-};
-
 export async function POST(request: NextRequest) {
   const tokenUser = await getUserFromCookieAction();
   if (!tokenUser) {

@@ -10,7 +10,7 @@ export const COOKIE_OPTIONS = {
   maxAge: 60 * 60 * 24 * 90, // 90 days
 };
 
-export const MAX_FILE_SIZE = 20 * 1024 * 1024; // 5MB
+export const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
 
 export const AI_MODELS: AIModel[] = [
   {
