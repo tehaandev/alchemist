@@ -20,7 +20,6 @@ import {
   Settings,
   User,
 } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React from "react";
@@ -31,27 +30,16 @@ export default function AuthLayout({
   const pathname = usePathname();
   const [open, setOpen] = React.useState(false);
   return (
-    <section className="bg-background flex min-h-screen w-screen flex-col items-center justify-center">
-      <header className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 mx-auto w-full border-b backdrop-blur">
+    <section className="bg-background justify flex min-h-screen w-screen flex-col items-center">
+      <header className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 mx-auto w-full border-b px-10 backdrop-blur">
         <div className="container mx-auto flex h-16 items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Link href="/" className="flex items-center gap-2">
-              <Image
-                src={"/logo.webp"}
-                alt="Alchemist Logo"
-                width={32}
-                height={32}
-                className="h-8 w-8 rounded-full"
-              />
-              <span className="text-xl font-bold">Alchemist</span>
-            </Link>
-          </div>
-
           <nav className="hidden items-center gap-6 md:flex">
             <Link
               href="/chat"
               className={`hover:text-primary flex items-center gap-2 text-sm font-medium transition-colors ${
-                pathname === "/chat" ? "text-primary" : "text-muted-foreground"
+                pathname.startsWith("/chat")
+                  ? "text-primary"
+                  : "text-muted-foreground"
               }`}>
               <MessageSquare className="h-4 w-4" />
               Chat

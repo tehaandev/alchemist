@@ -55,13 +55,11 @@ export default function DocumentsPage() {
   }
 
   return (
-    <div className="container mx-auto h-full py-8">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Documents</h1>
-
+    <div className="m-4 lg:m-8 xl:m-12">
+      <div className="mb-6">
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="flex items-center gap-2">
+            <Button className="flex items-center justify-end gap-2">
               <Plus className="h-4 w-4" />
               Add New Document
             </Button>
@@ -115,7 +113,7 @@ export default function DocumentsPage() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3">
           {documents?.map((doc) => <DocCard key={doc.key} doc={doc} />)}
         </div>
       )}

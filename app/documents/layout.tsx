@@ -1,3 +1,3 @@
-import AuthLayout from "@/components/AuthLayout";
+import ChatLayout from "../chat/layout";
 
-export default AuthLayout;
+export default ChatLayout;

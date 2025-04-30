@@ -7,13 +7,13 @@ export default function ChatLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <AuthLayout>
-      <SidebarProvider>
-        <section className="flex w-full flex-row">
-          <ChatSidebar />
-          <div className="h-[calc(100vh-4rem)] flex-1">{children}</div>
-        </section>
-      </SidebarProvider>
-    </AuthLayout>
+    <SidebarProvider>
+      <section className="flex w-full flex-row">
+        <ChatSidebar />
+        <AuthLayout>
+          <div className="flex-1">{children}</div>
+        </AuthLayout>
+      </section>
+    </SidebarProvider>
   );
 }

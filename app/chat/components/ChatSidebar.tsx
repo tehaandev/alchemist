@@ -30,6 +30,8 @@ import {
   Search,
   Trash2,
 } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -77,8 +79,20 @@ export function ChatSidebar() {
   };
 
   return (
-    <Sidebar className="bg-background pt-16">
+    <Sidebar className="bg-black">
       <SidebarHeader>
+        <div className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2">
+            <Image
+              src={"/logo.webp"}
+              alt="Alchemist Logo"
+              width={32}
+              height={32}
+              className="h-8 w-8 rounded-full"
+            />
+            <span className="text-xl font-bold">Alchemist</span>
+          </Link>
+        </div>
         <div className="flex items-center justify-between px-2">
           <h2 className="text-lg font-semibold">Chats</h2>
           {/* <SidebarTrigger /> */}
