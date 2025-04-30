@@ -1,7 +1,7 @@
 "use client";
 
+import DocCard from "./components/DocCard";
 import { Button } from "@/components/ui/button";
-import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -11,13 +11,10 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Progress } from "@/components/ui/progress";
 import {
   useDocumentKeysFromDb,
   useUploadToS3,
 } from "@/features/documents/documents.query";
-import { useEmbeddingsForFile } from "@/features/embeddings/embeddings.query";
-import { DocumentStatus } from "@prisma/client";
 import { FileText, Loader2, Plus } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -25,10 +22,7 @@ import { toast } from "sonner";
 export default function DocumentsPage() {
   const { data: documents, isLoading, error } = useDocumentKeysFromDb();
   const [newDocuments, setNewDocuments] = useState<File[]>();
-  const [progress, setProgress] = useState(0);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-
-  const generateEmbeddingsMutation = useEmbeddingsForFile(setProgress);
 
   const addDocumentMutation = useUploadToS3();
 
@@ -122,49 +116,9 @@ export default function DocumentsPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {documents?.map((doc) => (
-            <Card key={doc.key} className="flex flex-col">
-              <CardHeader className="w-full">
-                <CardTitle
-                  className="line-clamp-2 truncate text-sm break-all hover:overflow-visible hover:whitespace-normal"
-                  title={doc.filename} // This adds a tooltip on hover
-                >
-                  {doc.filename}
-                </CardTitle>
-              </CardHeader>
-              <CardFooter className="flex justify-end gap-2 border-t pt-4">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() =>
-                    generateEmbeddingsMutation.mutate({
-                      key: doc.key,
-                      docId: doc.id.toString(),
-                    })
-                  }
-                  disabled={
-                    generateEmbeddingsMutation.isPending ||
-                    doc.status === DocumentStatus.EMBEDDED
-                  }>
-                  {generateEmbeddingsMutation.isPending ? (
-                    <>
-                      <Loader2 className="mr-2 h-3 w-3 animate-spin" />
-                      Generating...
-                    </>
-                  ) : doc.status === DocumentStatus.EMBEDDED ? (
-                    <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-100">
-                      Embeddings Generated
-                    </span>
-                  ) : (
-                    "Generate Embeddings"
-                  )}
-                </Button>
-              </CardFooter>
-            </Card>
-          ))}
+          {documents?.map((doc) => <DocCard key={doc.key} doc={doc} />)}
         </div>
       )}
-      <Progress value={progress} className="mt-4" />
     </div>
   );
 }
