@@ -1,6 +1,7 @@
 "use server";
 
 import { getUserFromCookieAction } from "../auth/auth.action";
+import { getTitleFromQueryAction } from "../gemini/gemini.action";
 import {
   expandQueryAction,
   generateAnswerAction,
@@ -26,8 +27,9 @@ export async function getAnswerFromQuery({
     ? await prisma.chatSession.findUnique({ where: { id: sessionId } })
     : null;
   if (!session) {
+    const title = await getTitleFromQueryAction(query);
     session = await prisma.chatSession.create({
-      data: { title: query, createdBy: tokenUser.id },
+      data: { title, createdBy: tokenUser.id },
     });
   }
 
@@ -44,15 +46,6 @@ export async function getAnswerFromQuery({
   const expandedQuery = await expandQueryAction(query);
 
   if (!expandedQuery) throw new Error("Failed to expand query");
-
-  // Update session title with the first sentence of the expanded query
-  const firstSentence = expandedQuery.split(".")[0];
-  if (firstSentence) {
-    await prisma.chatSession.update({
-      where: { id: session.id },
-      data: { title: firstSentence },
-    });
-  }
 
   // Generate embedding
   const expandedQueryVector = await generateEmbeddingAction(expandedQuery);
