@@ -1,5 +1,6 @@
 "use server";
 
+import { getUserFromCookieAction } from "../auth/auth.action";
 import { generateEmbeddingAction } from "../open-ai/open-ai.action";
 import { getDocumentText } from "../s3/s3.action";
 import pineconeIndex from "@/lib/pinecone";
@@ -28,6 +29,10 @@ export async function generateEmbeddingsForFile({
 }) {
   const PINECONE_INDEX_NAME = process.env.PINECONE_INDEX_NAME;
   try {
+    const tokenUser = await getUserFromCookieAction();
+    if (!tokenUser) {
+      throw new Error("Unauthorized");
+    }
     if (!PINECONE_INDEX_NAME) {
       throw new Error("Pinecone index name is not defined");
     }
