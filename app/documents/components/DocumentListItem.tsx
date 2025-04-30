@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import {
   Tooltip,
   TooltipContent,
@@ -16,7 +15,6 @@ import {
 import { cn } from "@/lib/utils";
 import { DocumentStatus } from "@prisma/client";
 import { ChevronsLeftRight, Loader2, Trash } from "lucide-react";
-import React from "react";
 
 export default function DocumentListItem({
   doc,
@@ -27,12 +25,8 @@ export default function DocumentListItem({
   };
 }) {
   const { data: document, isLoading } = useDocumentFromDb(doc.key);
-  const [progress, setProgress] = React.useState(0);
-  const generateEmbeddingsMutation = useEmbeddingsForFile(setProgress, doc.key);
-  const deleteEmbeddingMutation = useDeleteEmbeddingsForFile(
-    setProgress,
-    doc.key,
-  );
+  const generateEmbeddingsMutation = useEmbeddingsForFile(doc.key);
+  const deleteEmbeddingMutation = useDeleteEmbeddingsForFile(doc.key);
 
   const isProcessing =
     generateEmbeddingsMutation.isPending || deleteEmbeddingMutation.isPending;
@@ -74,51 +68,39 @@ export default function DocumentListItem({
         </Tooltip>
       </TooltipProvider>
 
-      <div className="flex items-center gap-2">
-        {isProcessing && (
-          <Progress
-            value={progress}
-            className="h-1.5 w-20"
-            color={
-              generateEmbeddingsMutation.isPending ? "default" : "destructive"
-            }
-          />
+      <Button
+        variant="ghost"
+        size="sm"
+        className={cn(
+          "h-7 px-2 text-xs opacity-0 transition-opacity group-hover:opacity-100 focus:opacity-100",
+          isEmbedded ? "text-destructive hover:text-destructive" : "",
         )}
-
-        <Button
-          variant="ghost"
-          size="sm"
-          className={cn(
-            "h-7 px-2 text-xs opacity-0 transition-opacity group-hover:opacity-100 focus:opacity-100",
-            isEmbedded ? "text-destructive hover:text-destructive" : "",
-          )}
-          onClick={() => {
-            if (isEmbedded) {
-              deleteEmbeddingMutation.mutate({ docId: doc.id.toString() });
-            } else {
-              generateEmbeddingsMutation.mutate({
-                key: doc.key,
-                docId: doc.id.toString(),
-              });
-            }
-          }}
-          disabled={isProcessing}>
-          {isProcessing ? (
-            <Loader2 className="mr-1 h-3 w-3 animate-spin" />
-          ) : isEmbedded ? (
-            <Trash className="mr-1 h-3 w-3" />
-          ) : (
-            <ChevronsLeftRight className="mr-1 h-3 w-3" />
-          )}
-          {isProcessing
-            ? generateEmbeddingsMutation.isPending
-              ? "Processing..."
-              : "Removing..."
-            : isEmbedded
-              ? "Remove Embeddings"
-              : "Embed Document"}
-        </Button>
-      </div>
+        onClick={() => {
+          if (isEmbedded) {
+            deleteEmbeddingMutation.mutate({ docId: doc.id.toString() });
+          } else {
+            generateEmbeddingsMutation.mutate({
+              key: doc.key,
+              docId: doc.id.toString(),
+            });
+          }
+        }}
+        disabled={isProcessing}>
+        {isProcessing ? (
+          <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+        ) : isEmbedded ? (
+          <Trash className="mr-1 h-3 w-3" />
+        ) : (
+          <ChevronsLeftRight className="mr-1 h-3 w-3" />
+        )}
+        {isProcessing
+          ? generateEmbeddingsMutation.isPending
+            ? "Processing..."
+            : "Removing..."
+          : isEmbedded
+            ? "Remove Embeddings"
+            : "Embed Document"}
+      </Button>
     </div>
   );
 }
