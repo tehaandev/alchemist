@@ -17,6 +17,7 @@ export async function getAnswerFromQuery({
   sessionId,
   query,
   modelId = OpenAIModel.GPT_41_nano,
+  useEmbeddings,
 }: GetAnswerParams) {
   // Authenticate user
   const tokenUser = await getUserFromCookieAction();
@@ -42,33 +43,50 @@ export async function getAnswerFromQuery({
     },
   });
 
-  // Expand query for better retrieval
-  const expandedQuery = await expandQueryAction(query);
+  let contexts = undefined;
+  if (useEmbeddings) {
+    // Expand query for better retrieval
+    const expandedQuery = await expandQueryAction(query);
 
-  if (!expandedQuery) throw new Error("Failed to expand query");
+    if (!expandedQuery) throw new Error("Failed to expand query");
 
-  // Generate embedding
-  const expandedQueryVector = await generateEmbeddingAction(expandedQuery);
+    // Generate embedding
+    const expandedQueryVector = await generateEmbeddingAction(expandedQuery);
 
-  // Search in Pinecone
-  const pineconeNamespace = pineconeIndex.namespace(tokenUser.email);
-  const searchResults = await pineconeNamespace.query({
-    vector: expandedQueryVector,
-    topK: 5,
-    includeMetadata: true,
-  });
-  if (!searchResults?.matches.length) {
-    throw new Error("No relevant documents found");
+    // Search in Pinecone
+    const pineconeNamespace = pineconeIndex.namespace(tokenUser.email);
+    const searchResults = await pineconeNamespace.query({
+      vector: expandedQueryVector,
+      topK: 5,
+      includeMetadata: true,
+    });
+    if (!searchResults?.matches.length) {
+      throw new Error("No relevant documents found");
+    }
+
+    // Combine retrieved texts
+    contexts = searchResults.matches
+      .map((m) => m.metadata?.text)
+      .join("\n---\n");
   }
 
-  // Combine retrieved texts
-  const contexts = searchResults.matches
-    .map((m) => m.metadata?.text)
-    .join("\n---\n");
+  const previousMessages = await prisma.message.findMany({
+    where: { sessionId: session.id },
+    orderBy: { createdAt: "asc" },
+    // take: ,
+  });
+
+  const chatHistory = previousMessages.map((msg) => ({
+    role: (msg.role === MessageRole.LLM ? "assistant" : "user") as
+      | "user"
+      | "assistant",
+    content: msg.content,
+  }));
 
   // Generate answer with RAG context
   const answer = await generateAnswerAction(
     query,
+    chatHistory,
     contexts,
     modelId as OpenAIModel,
   );

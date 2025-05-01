@@ -49,9 +49,11 @@ export const useChatAnswer = ({ sessionId }: { sessionId?: string }) => {
 export const useChat = ({
   modelId = OpenAIModel.GPT_41_nano,
   initialSessionId,
+  useEmbeddings = true,
 }: {
   modelId?: string;
   initialSessionId?: string;
+  useEmbeddings?: boolean;
 }) => {
   const [sessionId, setSessionId] = useState<string | null>(
     initialSessionId || null,
@@ -93,9 +95,10 @@ export const useChat = ({
         sessionId: sid,
         query,
         modelId,
+        useEmbeddings,
       });
     },
-    [sessionId, createSessionMutation, answerMutation, modelId],
+    [sessionId, createSessionMutation, answerMutation, modelId, useEmbeddings],
   );
 
   // Consolidated message list

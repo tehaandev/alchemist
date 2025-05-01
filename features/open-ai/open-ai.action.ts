@@ -46,7 +46,11 @@ export async function expandQueryAction(
 
 export async function generateAnswerAction(
   query: string,
-  retrieved_chunks: string,
+  chatHistory: {
+    role: "user" | "assistant";
+    content: string;
+  }[],
+  retrieved_chunks?: string,
   model: OpenAIModel = OpenAIModel.GPT_41_nano,
 ) {
   try {
@@ -58,18 +62,20 @@ export async function generateAnswerAction(
           content: `
           You are an expert research assistant in AI for agriculture. Using the following retrieved context and user question, generate a clear, concise, and well-structured answer that directly addresses the question. Include relevant technical details, cite key concepts or studies if possible, and connect findings to edge-based machine learning in smallholder farming where appropriate. If the answer includes limitations, challenges, or future directions, summarize them briefly at the end. If the information is inconclusive, state that confidently.
 
-          User Question:
-          ${query}
-
-          Context:
-          ${retrieved_chunks}
-
           Instructions:
           - Focus on clarity and relevance to agricultural ML and edge computing.
           - Avoid speculation not supported by the context.
           - Do not include the original user query or raw context in the final answer.
           - Structure in 1-3 short paragraphs unless otherwise necessary.
+
+          ${retrieved_chunks ? "Context: " : ""}
+          ${retrieved_chunks ? retrieved_chunks : ""}
           `,
+        },
+        ...chatHistory.map((msg) => ({ role: msg.role, content: msg.content })),
+        {
+          role: "user",
+          content: `${query}`,
         },
       ],
     });

@@ -3,7 +3,14 @@
 import { ModelSelector } from "@/components/ModelSelector";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { AI_MODELS } from "@/constants";
 import { useChat, useCreateChatSession } from "@/features/chat/chat.query";
 import { AIModel } from "@/features/open-ai/open-ai.type";
@@ -15,6 +22,7 @@ import { useEffect, useState } from "react";
 export default function Chat({ sessionId }: { sessionId?: string }) {
   const [input, setInput] = useState<string>("");
   const [selectedModel, setSelectedModel] = useState<AIModel>(AI_MODELS[0]);
+  const [useEmbeddings, setUseEmbeddings] = useState(true);
 
   const {
     sessionId: activeSession,
@@ -69,7 +77,7 @@ export default function Chat({ sessionId }: { sessionId?: string }) {
         />
       </div>
 
-      <Card className="mb-4 flex h-[58vh] w-[75vw] flex-col overflow-hidden border-2">
+      <Card className="mb-4 flex h-[55vh] w-[75vw] flex-col overflow-hidden border-2">
         <div className="flex-1 overflow-auto p-4">
           <div className="flex h-full w-full flex-col space-y-4">
             {!sessionId && (
@@ -145,23 +153,39 @@ export default function Chat({ sessionId }: { sessionId?: string }) {
               }
             }}
             onChange={(e) => setInput(e.target.value)}
-            className="flex-1 resize-y"
+            className="h-ful flex-1 resize-y"
           />
-          <Button
-            type="button"
-            size="icon"
-            onClick={() => {
-              if (!input.trim()) return;
-              handleSubmit(input);
-              setInput("");
-            }}
-            disabled={isPending || !input.trim()}>
-            {!isPending ? (
-              <Send size={16} />
-            ) : (
-              <Loader2 className="animate-spin" />
-            )}
-          </Button>
+          <div className="flex flex-col items-center justify-between gap-2">
+            <Button
+              type="button"
+              size="icon"
+              onClick={() => {
+                if (!input.trim()) return;
+                handleSubmit(input);
+                setInput("");
+              }}
+              disabled={isPending || !input.trim()}>
+              {!isPending ? (
+                <Send size={16} />
+              ) : (
+                <Loader2 className="animate-spin" />
+              )}
+            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Switch
+                    checked={useEmbeddings}
+                    onCheckedChange={setUseEmbeddings}
+                    disabled={isPending}
+                  />
+                </TooltipTrigger>
+                <TooltipContent side="bottom" align="center">
+                  {useEmbeddings ? "Using embeddings" : "Not using embeddings"}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
         </div>
       )}
     </div>
