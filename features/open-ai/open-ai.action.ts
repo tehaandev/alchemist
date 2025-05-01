@@ -27,10 +27,17 @@ export async function expandQueryAction(
         {
           role: "system",
           content: `
-            You are a research assistant specializing in precision agriculture, edge computing, and machine learning. Given the following user query, generate 3 to 5 expanded and more specific search queries that could help retrieve relevant academic papers or datasets. The expansions should include alternative terminology, broader and narrower scopes, and closely related concepts. Prioritize relevance to edge-based ML systems for smallholder farming. Keep each expanded query concise and academic in tone.
-
-            User Query: "${query}"
+            You are a research assistant specializing in machine learning. Given the following user query, generate 3 to 5 expanded and more specific search queries that could help retrieve relevant academic papers or datasets. 
+            Each expansion should:
+            - include alternative terminology
+            - cover broader and narrower scopes
+            - mention closely related concepts
+            Keep them concise and academic in tone.
           `,
+        },
+        {
+          role: "user",
+          content: `${query}`,
         },
       ],
       temperature: 0.7,
@@ -60,10 +67,10 @@ export async function generateAnswerAction(
         {
           role: "system",
           content: `
-          You are an expert research assistant in AI for agriculture. Using the following retrieved context and user question, generate a clear, concise, and well-structured answer that directly addresses the question. Include relevant technical details, cite key concepts or studies if possible, and connect findings to edge-based machine learning in smallholder farming where appropriate. If the answer includes limitations, challenges, or future directions, summarize them briefly at the end. If the information is inconclusive, state that confidently.
+          You are an expert research assistant in machine learning. Using the following retrieved context and user question, generate a clear, concise, and well-structured answer that directly addresses the question. Include relevant technical details, cite key concepts or studies if possible. If the answer includes limitations, challenges, or future directions, summarize them briefly at the end. If the information is inconclusive, state that confidently.
 
           Instructions:
-          - Focus on clarity and relevance to agricultural ML and edge computing.
+          - Focus on clarity and relevance to users query.
           - Avoid speculation not supported by the context.
           - Do not include the original user query or raw context in the final answer.
           - Structure in 1-3 short paragraphs unless otherwise necessary.
