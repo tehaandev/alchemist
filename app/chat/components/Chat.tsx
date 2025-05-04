@@ -68,6 +68,12 @@ export default function Chat({ sessionId }: { sessionId?: string }) {
     }
   }, []);
 
+  useEffect(() => {
+    if (messages.length > 0) {
+      setUseEmbeddings(false);
+    }
+  }, [messages]);
+
   return (
     <div className="m-4 lg:m-8 xl:m-12">
       <div className="mb-6 flex w-full justify-end">
