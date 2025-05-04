@@ -9,7 +9,7 @@ import {
 } from "./chat.action";
 import queryClient from "@/lib/queryClient";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useCallback, useState } from "react";
+import { Dispatch, SetStateAction, useCallback, useState } from "react";
 import { toast } from "sonner";
 
 export const useChatHistory = (sessionId?: string) =>
@@ -97,7 +97,10 @@ export const useChat = ({
 
   // Submit handler
   const handleSubmit = useCallback(
-    async (query: string) => {
+    async (
+      query: string,
+      setUseEmbeddings: Dispatch<SetStateAction<boolean>>,
+    ) => {
       if (!query) return;
 
       // Ensure session
@@ -119,6 +122,7 @@ export const useChat = ({
             query,
             modelId,
           });
+          setUseEmbeddings(false);
         } else {
           await answerFromHistoryMutation.mutateAsync({
             sessionId: sid,

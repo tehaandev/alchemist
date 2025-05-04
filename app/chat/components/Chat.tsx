@@ -145,7 +145,7 @@ export default function Chat({ sessionId }: { sessionId?: string }) {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
                 if (!input.trim()) return;
-                handleSubmit(input);
+                handleSubmit(input, setUseEmbeddings);
                 setInput("");
               }
               if (e.key === "Enter" && e.shiftKey) {
@@ -161,7 +161,7 @@ export default function Chat({ sessionId }: { sessionId?: string }) {
               size="icon"
               onClick={() => {
                 if (!input.trim()) return;
-                handleSubmit(input);
+                handleSubmit(input, setUseEmbeddings);
                 setInput("");
               }}
               disabled={isPending || !input.trim()}>
