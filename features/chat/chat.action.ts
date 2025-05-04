@@ -5,6 +5,7 @@ import { getTitleFromQueryAction } from "../gemini/gemini.action";
 import {
   expandQueryAction,
   generateAnswerAction,
+  generateAnswerFromChatHistoryAction,
   generateEmbeddingAction,
 } from "../open-ai/open-ai.action";
 import { OpenAIModel } from "../open-ai/open-ai.type";
@@ -17,7 +18,6 @@ export async function getAnswerFromQuery({
   sessionId,
   query,
   modelId = OpenAIModel.GPT_41_nano,
-  useEmbeddings,
 }: GetAnswerParams) {
   // Authenticate user
   const tokenUser = await getUserFromCookieAction();
@@ -42,33 +42,29 @@ export async function getAnswerFromQuery({
       content: query,
     },
   });
+  // Expand query for better retrieval
+  const expandedQuery = await expandQueryAction(query);
 
-  let contexts = undefined;
-  if (useEmbeddings) {
-    // Expand query for better retrieval
-    const expandedQuery = await expandQueryAction(query);
+  if (!expandedQuery) throw new Error("Failed to expand query");
 
-    if (!expandedQuery) throw new Error("Failed to expand query");
+  // Generate embedding
+  const expandedQueryVector = await generateEmbeddingAction(expandedQuery);
 
-    // Generate embedding
-    const expandedQueryVector = await generateEmbeddingAction(expandedQuery);
-
-    // Search in Pinecone
-    const pineconeNamespace = pineconeIndex.namespace(tokenUser.email);
-    const searchResults = await pineconeNamespace.query({
-      vector: expandedQueryVector,
-      topK: 5,
-      includeMetadata: true,
-    });
-    if (!searchResults?.matches.length) {
-      throw new Error("No relevant documents found");
-    }
-
-    // Combine retrieved texts
-    contexts = searchResults.matches
-      .map((m) => m.metadata?.text)
-      .join("\n---\n");
+  // Search in Pinecone
+  const pineconeNamespace = pineconeIndex.namespace(tokenUser.email);
+  const searchResults = await pineconeNamespace.query({
+    vector: expandedQueryVector,
+    topK: 5,
+    includeMetadata: true,
+  });
+  if (!searchResults?.matches.length) {
+    throw new Error("No relevant documents found");
   }
+
+  // Combine retrieved texts
+  const contexts = searchResults.matches
+    .map((m) => m.metadata?.text)
+    .join("\n---\n");
 
   const previousMessages = await prisma.message.findMany({
     where: { sessionId: session.id },
@@ -77,9 +73,7 @@ export async function getAnswerFromQuery({
   });
 
   const chatHistory = previousMessages.map((msg) => ({
-    role: (msg.role === MessageRole.LLM ? "assistant" : "user") as
-      | "user"
-      | "assistant",
+    role: msg.role.toLowerCase() as "user" | "assistant" | "system",
     content: msg.content,
   }));
 
@@ -96,7 +90,7 @@ export async function getAnswerFromQuery({
   await prisma.message.create({
     data: {
       sessionId: session.id,
-      role: MessageRole.LLM,
+      role: MessageRole.ASSISTANT,
       content: answer,
     },
   });
@@ -104,6 +98,49 @@ export async function getAnswerFromQuery({
   return { sessionId: session.id, answer };
 }
 
+export async function getAnswerFromChatHistory({
+  sessionId,
+  query,
+  modelId = OpenAIModel.GPT_41_nano,
+}: GetAnswerParams) {
+  // Authenticate user
+  const tokenUser = await getUserFromCookieAction();
+  if (!tokenUser) throw new Error("Unauthorized");
+  // Ensure session exists
+  const session = await prisma.chatSession.findUnique({
+    where: { id: sessionId },
+  });
+  if (!session) throw new Error("Session not found");
+  // Fetch chat history
+  const chatHistory = await prisma.message
+    .findMany({
+      where: { sessionId },
+      orderBy: { createdAt: "asc" },
+    })
+    .then((messages) =>
+      messages.map((msg) => ({
+        role: msg.role.toLowerCase() as "user" | "assistant" | "system",
+        content: msg.content,
+      })),
+    );
+  if (!chatHistory.length) throw new Error("No chat history found");
+  // Generate answer with chat history
+  const answer = await generateAnswerFromChatHistoryAction(
+    query,
+    chatHistory,
+    modelId as OpenAIModel,
+  );
+  if (!answer) throw new Error("Failed to generate answer");
+  // Persist assistant reply
+  await prisma.message.create({
+    data: {
+      sessionId: session.id,
+      role: MessageRole.ASSISTANT,
+      content: answer,
+    },
+  });
+  return { sessionId: session.id, answer };
+}
 export async function getChatHistoryAction(sessionId?: string) {
   // Authenticate user
   const tokenUser = await getUserFromCookieAction();

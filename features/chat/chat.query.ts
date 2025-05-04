@@ -2,6 +2,7 @@ import { OpenAIModel } from "../open-ai/open-ai.type";
 import {
   createChatSessionAction,
   deleteChatSessionAction,
+  getAnswerFromChatHistory,
   getAnswerFromQuery,
   getChatHistoryAction,
   getChatSessionsAction,
@@ -46,6 +47,23 @@ export const useChatAnswer = ({ sessionId }: { sessionId?: string }) => {
   });
 };
 
+export const useChatAnswerFromHistory = ({
+  sessionId,
+}: {
+  sessionId?: string;
+}) =>
+  useMutation({
+    mutationFn: getAnswerFromChatHistory,
+    onSuccess: () => {
+      if (sessionId) {
+        queryClient.invalidateQueries({ queryKey: ["chatHistory", sessionId] });
+      }
+    },
+    onError: (err) => {
+      toast.error(err.message);
+    },
+  });
+
 export const useChat = ({
   modelId = OpenAIModel.GPT_41_nano,
   initialSessionId,
@@ -73,6 +91,9 @@ export const useChat = ({
   const answerMutation = useChatAnswer({
     sessionId: sessionId || undefined,
   });
+  const answerFromHistoryMutation = useChatAnswerFromHistory({
+    sessionId: sessionId || undefined,
+  });
 
   // Submit handler
   const handleSubmit = useCallback(
@@ -91,14 +112,34 @@ export const useChat = ({
       }
 
       // Send the query
-      await answerMutation.mutateAsync({
-        sessionId: sid,
-        query,
-        modelId,
-        useEmbeddings,
-      });
+      try {
+        if (useEmbeddings) {
+          await answerMutation.mutateAsync({
+            sessionId: sid,
+            query,
+            modelId,
+          });
+        } else {
+          await answerFromHistoryMutation.mutateAsync({
+            sessionId: sid,
+            query,
+            modelId,
+          });
+        }
+      } catch (error: unknown) {
+        const message =
+          error instanceof Error ? error.message : "Unknown error occurred";
+        toast.error(message);
+      }
     },
-    [sessionId, createSessionMutation, answerMutation, modelId, useEmbeddings],
+    [
+      sessionId,
+      createSessionMutation,
+      answerMutation,
+      modelId,
+      useEmbeddings,
+      answerFromHistoryMutation,
+    ],
   );
 
   // Consolidated message list

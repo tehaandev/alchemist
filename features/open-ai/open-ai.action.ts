@@ -54,7 +54,7 @@ export async function expandQueryAction(
 export async function generateAnswerAction(
   query: string,
   chatHistory: {
-    role: "user" | "assistant";
+    role: "user" | "assistant" | "system";
     content: string;
   }[],
   retrieved_chunks?: string,
@@ -79,6 +79,32 @@ export async function generateAnswerAction(
           ${retrieved_chunks ? retrieved_chunks : ""}
           `,
         },
+        ...chatHistory.map((msg) => ({ role: msg.role, content: msg.content })),
+        {
+          role: "user",
+          content: `${query}`,
+        },
+      ],
+    });
+    return response.choices[0].message.content;
+  } catch (error) {
+    console.error("Error generating answer:", error);
+    throw new Error("Failed to generate answer");
+  }
+}
+
+export async function generateAnswerFromChatHistoryAction(
+  query: string,
+  chatHistory: {
+    role: "user" | "assistant" | "system";
+    content: string;
+  }[],
+  model: OpenAIModel = OpenAIModel.GPT_41_nano,
+) {
+  try {
+    const response = await openai.chat.completions.create({
+      model,
+      messages: [
         ...chatHistory.map((msg) => ({ role: msg.role, content: msg.content })),
         {
           role: "user",
