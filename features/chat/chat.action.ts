@@ -10,6 +10,7 @@ import {
 } from "../open-ai/open-ai.action";
 import { OpenAIModel } from "../open-ai/open-ai.type";
 import { GetAnswerParams } from "./chat.type";
+import { MAX_RESULTS } from "@/constants";
 import pineconeIndex from "@/lib/pinecone";
 import { prisma } from "@/lib/prisma";
 import { MessageRole } from "@prisma/client";
@@ -54,7 +55,7 @@ export async function getAnswerFromQuery({
   const pineconeNamespace = pineconeIndex.namespace(tokenUser.email);
   const searchResults = await pineconeNamespace.query({
     vector: expandedQueryVector,
-    topK: 5,
+    topK: MAX_RESULTS,
     includeMetadata: true,
   });
   if (!searchResults?.matches.length) {

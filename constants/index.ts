@@ -12,6 +12,8 @@ export const COOKIE_OPTIONS = {
 
 export const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
 
+export const MAX_RESULTS = 10;
+
 export const AI_MODELS: AIModel[] = [
   {
     id: OpenAIModel.GPT_41_nano,
