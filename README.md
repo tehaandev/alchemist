@@ -47,7 +47,7 @@ Alchemist is a full-stack web application that transforms documents into an inte
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/<your-org>/alchemist.git
+   git clone https://github.com/tehaandev/alchemist.git
    cd alchemist
    ```
 
