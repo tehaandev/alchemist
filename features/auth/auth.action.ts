@@ -3,8 +3,10 @@
 import { signToken, verifyToken } from "./auth.service";
 import { AUTH_COOKIE_NAME, COOKIE_OPTIONS } from "@/constants";
 import { prisma } from "@/lib/prisma";
+import { loginRateLimiter } from "@/lib/rate-limiter";
 import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
+import { headers } from "next/headers";
 import { redirect, RedirectType } from "next/navigation";
 
 export async function registerAction({
@@ -53,13 +55,41 @@ export async function loginAction({
   password: string;
 }) {
   const c = await cookies();
+
+  // Get client IP for rate limiting
+  const headersList = await headers();
+  const forwardedFor = headersList.get("x-forwarded-for");
+  const ip = forwardedFor ? forwardedFor.split(",")[0].trim() : "unknown-ip";
+
+  // Check if the IP is already rate limited
+  if (loginRateLimiter.isRateLimited(ip)) {
+    const timeRemaining = Math.ceil(
+      loginRateLimiter.getTimeRemaining(ip) / 1000 / 60,
+    );
+    throw new Error(
+      `Too many login attempts. Please try again in ${timeRemaining} minutes.`,
+    );
+  }
+
   try {
     const user = await prisma.user.findUnique({
       where: { email },
     });
     if (!user || !(await bcrypt.compare(password, user.password))) {
-      throw new Error("Invalid email or password");
+      // Record failed attempt
+      loginRateLimiter.increment(ip);
+      const remainingAttempts = loginRateLimiter.getRemainingAttempts(ip);
+
+      throw new Error(
+        remainingAttempts > 0
+          ? `Invalid email or password. ${remainingAttempts} attempts remaining.`
+          : "Too many failed login attempts. Please try again later.",
+      );
     }
+
+    // Success! Reset rate limiter for this IP
+    loginRateLimiter.reset(ip);
+
     const token = signToken({
       id: user.id,
       email: user.email,
@@ -73,7 +103,7 @@ export async function loginAction({
     } else {
       console.error("Error in loginAction:", error);
     }
-    throw new Error("Login failed");
+    throw error; // Re-throw the original error with attempt information
   }
 }
 

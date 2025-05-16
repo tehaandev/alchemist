@@ -21,18 +21,26 @@ export function LoginForm({
 }: React.ComponentProps<"div">) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const { replace } = useRouter();
   const loginMutation = useLoginUser();
   // const registerMutation = useRegisterUser();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(""); // Clear previous errors
     try {
       await loginMutation.mutateAsync({
         email,
         password,
       });
       replace("/chat");
-    } catch {} // Intentional no-op (error handling is done in the mutation)
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unknown error occurred");
+      }
+    }
   };
 
   const onEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -52,8 +60,13 @@ export function LoginForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
+          <form onSubmit={handleSubmit}>
             <div className="flex flex-col gap-6">
+              {error && (
+                <div className="rounded-md bg-red-50 p-3 text-sm text-red-600">
+                  {error}
+                </div>
+              )}
               <div className="grid gap-3">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -81,8 +94,8 @@ export function LoginForm({
                 />
               </div>
               <div className="flex flex-col gap-3">
-                <Button onClick={handleSubmit} className="w-full">
-                  Login
+                <Button type="submit" className="w-full">
+                  {loginMutation.isPending ? "Logging in..." : "Login"}
                 </Button>
                 {/* <Button variant="outline" className="w-full">
                   Login with Google
